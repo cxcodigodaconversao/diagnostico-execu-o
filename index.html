@@ -253,9 +253,17 @@ body::before{
 .di-status.good{background:rgba(0,155,255,.1);color:var(--blue)}
 .di-status.warning{background:rgba(243,156,18,.1);color:var(--orange)}
 .di-status.critical{background:rgba(231,76,60,.1);color:var(--red)}
-.di-fb{font-size:.86rem;color:var(--text-sub);line-height:1.65;padding:13px;
+.di-fb{font-size:.86rem;color:var(--text-sub);line-height:1.65;padding:13px 14px;
   background:rgba(0,155,255,0.05);border-radius:3px;border-left:2px solid rgba(0,155,255,0.3);
   font-weight:300}
+.fb-problem{margin-bottom:12px;line-height:1.7;color:var(--text-sub)}
+.fb-title-steps{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;
+  color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:9px}
+.fb-steps{display:flex;flex-direction:column;gap:7px}
+.fb-steps>div{display:flex;align-items:flex-start;gap:9px;font-size:.85rem;line-height:1.55}
+.fb-num{min-width:20px;height:20px;border-radius:3px;background:rgba(0,155,255,0.15);
+  color:var(--blue);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.8rem;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
 .di-quote{font-family:'Barlow Condensed',sans-serif;font-size:.9rem;color:var(--blue);
   font-style:italic;margin-top:9px;padding-top:9px;border-top:1px solid rgba(0,155,255,0.15);
   font-weight:500;letter-spacing:.5px}
@@ -455,7 +463,7 @@ const TOPICS=[
      opts:['Nunca ouvi falar ou nunca considerei usar.','Já ouvi falar, mas tenho medo de o juiz indeferir e não sei como fundamentar o pedido.','Já pedi algumas vezes, mas sem critério claro sobre quando e como usar cada medida.','Uso com frequência, mas ainda tenho dúvidas sobre os limites e como reagir ao indeferimento.','Tenho domínio completo: sei quando, como e com qual fundamentação solicitar cada medida.']}
    ]},
   {name:'gargalos',label:'GARGALOS SISTÊMICOS',shortLabel:'Gargalos',maxPts:10,
-   objetivo:'Identificar os gargalos do escritório e conectar com os pilares da mentoria.',
+   objetivo:'Identificar os principais gargalos técnicos e operacionais que limitam os resultados do escritório.',
    questions:[
     {text:'QUAL É O SEU MAIOR OBSTÁCULO PARA TER RESULTADOS CONSISTENTES EM EXECUÇÃO?',
      opts:['Não sei o que fazer quando o devedor não tem bens aparentes.','Tenho dificuldade em identificar fraudes, laranjas e blindagens patrimoniais.','Sei o que fazer tecnicamente, mas o juiz indefere tudo que peço.','Não consigo precificar bem meus honorários — cobro pouco e me sinto desvalorizado.','Não tenho clientes suficientes — tenho técnica mas falta carteira e captação.']},
@@ -567,24 +575,119 @@ function calcResults(){
 }
 
 function getLevel(total){
-  if(total>=41)return{level:'AVANÇADO',msg:'Você demonstra domínio sólido das 5 áreas da execução estratégica. Suas habilidades técnicas, visão comercial e capacidade de recuperação de crédito estão em patamar superior. Agora é hora de escalar, fechar parcerias e ampliar resultados com método.'};
-  if(total>=28)return{level:'EM DESENVOLVIMENTO',msg:'Você tem base jurídica e já gera resultados, mas há gaps que estão represando honorários e limitando seu crescimento. Com o Método da Caçada, você destrava execuções que parecem perdidas e eleva seu faturamento de forma consistente.'};
-  return{level:'NÍVEL CRÍTICO',msg:'Você tem conhecimento jurídico, mas está atuando sem método. A grande maioria das suas execuções está represando honorários que são juridicamente seus — mas que nunca chegam ao seu bolso. Uma única execução destravada pode pagar o investimento na mentoria.'};
+  if(total>=41)return{level:'AVANÇADO',msg:'Você demonstra domínio sólido nas 5 áreas da execução. Sua base técnica, visão comercial e capacidade de recuperação de crédito estão em patamar consistente. O desafio agora é manter resultados sem depender de improvisação e estruturar um processo replicável.'};
+  if(total>=28)return{level:'EM DESENVOLVIMENTO',msg:'Você tem base jurídica e algum resultado, mas há lacunas técnicas e operacionais represando honorários que já são seus. O diagnóstico identifica os pontos exatos onde estão os gargalos — e o que precisa ser resolvido em cada um.'};
+  return{level:'NÍVEL CRÍTICO',msg:'Você tem conhecimento jurídico, mas está atuando sem método. A maioria das suas execuções está travada e os honorários que são juridicamente seus não chegam ao seu bolso. O diagnóstico mostra claramente o que está errado e por onde começar a resolver.'};
 }
 
 function getStatusClass(pct){if(pct>=80)return'excellent';if(pct>=60)return'good';if(pct>=40)return'warning';return'critical';}
 function getStatusText(pct){if(pct>=80)return'AVANCADO';if(pct>=60)return'DESENVOLVIDO';if(pct>=40)return'EM DESENVOLVIMENTO';return'CRITICO';}
 
+// Dados estruturados dos feedbacks
+const FEEDBACKS={
+  escritorio:{
+    critical:{
+      p:'Sua carteira está estagnada ou inexistente. Cada mês sem estrutura é um mês de honorários que você ganhou juridicamente mas que nunca vai receber. O problema não é o volume de trabalho — é a ausência de método para gerenciar e avançar as execuções que você já tem.',
+      s:['Mapear todas as execuções ativas e classificar por estágio processual (bloqueada, em andamento, aguardando decisão)','Identificar quais casos têm potencial real de recuperação e quais precisam de estratégia diferente','Definir critérios mínimos para aceitar novos casos de execução e evitar acumular processos sem saída','Criar uma rotina fixa de peticionamento com prioridades definidas por valor e probabilidade de resultado']
+    },
+    warning:{
+      p:'Você tem carteira, mas a maioria está travada sem perspectiva clara de desfecho. O problema central é a falta de diagnóstico por caso: sem saber exatamente onde cada execução está travada, você não consegue destravá-la.',
+      s:['Auditar cada execução e identificar em qual etapa está travada e por qual motivo específico','Classificar os casos por nível de dificuldade (bens não localizados, devedor blindado, questão jurídica) e potencial de recuperação','Criar um fluxo de trabalho diferente por categoria de problema — o que funciona para um perfil não funciona para outro','Definir indicadores mínimos de progresso por caso para saber quando uma execução precisa de ação diferente']
+    },
+    good:{
+      p:'Você tem volume e resultados, mas ainda há casos represados por falta de sistematização. O gargalo não é técnico — é operacional. Sem um processo claro de priorização, os casos de maior valor ficam em segundo plano.',
+      s:['Criar uma matriz de prioridade por valor do crédito e probabilidade de sucesso estimada','Padronizar o acompanhamento de cada fase processual para não deixar prazos e oportunidades passarem','Definir gatilhos objetivos para acionar medidas mais agressivas (quando pedir bloqueio, quando requerer medida atípica)','Estruturar uma revisão periódica da carteira para identificar casos que podem ser desfechados com uma ação pontual']
+    },
+    excellent:{
+      p:'Carteira sólida e resultados consistentes. O risco agora é o crescimento sem documentação — o que funciona no seu processo hoje depende de você, e não está registrado em lugar nenhum. Isso limita a escala.',
+      s:['Documentar os processos que geram resultado para que possam ser replicados em novos casos sem depender da sua memória','Criar indicadores de performance por execução para identificar padrões de sucesso e replicá-los','Estabelecer critérios claros e objetivos de seleção de novos clientes de execução','Avaliar periodicamente quais casos merecem mais atenção estratégica e quais devem ser encerrados ou delegados']
+    }
+  },
+  buscabens:{
+    critical:{
+      p:'Você usa apenas SISBAJUD, RENAJUD e INFOJUD e não age antes da citação. Na prática, isso significa que seus devedores têm tempo para esconder bens antes de qualquer bloqueio. A maioria das suas execuções pode estar nascendo sem chances reais de resultado.',
+      s:['Mapear todos os sistemas de busca patrimonial disponíveis além dos três básicos — há pelo menos oito fontes relevantes que a maioria dos advogados não usa','Estudar quando e como solicitar medidas cautelares antes da citação nos casos em que o risco de ocultação é alto','Criar uma sequência estruturada de busca por perfil de devedor — pessoa física, empresa ativa, empresa fechada, devedor reincidente','Pesquisar jurisprudência atualizada sobre penhora online, bloqueios alternativos e novas fontes de busca patrimonial']
+    },
+    warning:{
+      p:'Você usa mais ferramentas que a média, mas sem uma sequência estratégica definida. Cada execução é tratada de forma improvisada, o que reduz drasticamente a taxa de sucesso — você ativa as ferramentas erradas na ordem errada.',
+      s:['Estruturar uma sequência padrão de busca patrimonial por perfil de devedor, definindo qual sistema acionar em qual momento','Definir critérios objetivos para decidir quando acionar medidas preventivas antes da citação','Montar um checklist de sistemas de busca para garantir que nenhuma fonte relevante fique de fora em cada caso','Estudar como identificar sinais de risco de ocultação patrimonial antes de ajuizar a execução']
+    },
+    good:{
+      p:'Você tem boa base de busca patrimonial, mas ainda há lacunas nas etapas preventivas e nos sistemas menos conhecidos. É exatamente nesses gaps que os devedores mais sofisticados se escondem — e onde estão os honorários que ainda não chegam até você.',
+      s:['Identificar os sistemas avançados de busca que ainda não domina e fazer um plano de estudo por cada um','Criar um protocolo de análise de risco antes de cada nova execução para decidir se há necessidade de ação antes da citação','Padronizar o pedido de arresto cautelar antes da citação para os casos em que o perfil do devedor indica risco alto','Manter atualização periódica sobre novas formas de penhora e jurisprudência do STJ sobre bloqueios atípicos']
+    },
+    excellent:{
+      p:'Processo de busca sólido e estratégico. O risco real é a desatualização: os devedores mais sofisticados — e seus advogados — estão em constante evolução nas formas de esconder patrimônio.',
+      s:['Manter um sistema de atualização sobre novos mecanismos de busca patrimonial que surgem por portaria, resolução ou jurisprudência','Monitorar sistematicamente as decisões do STJ sobre bloqueios e penhoras atípicas e seu impacto prático','Criar um banco de dados com padrões de comportamento de devedores recorrentes na sua região e área de atuação','Documentar os casos de sucesso em busca patrimonial como referência técnica para situações semelhantes futuras']
+    }
+  },
+  recuperacao:{
+    critical:{
+      p:'Quando o devedor esconde bens em laranjas ou empresas, você informa ao cliente que não há mais o que fazer. Esse é o ponto mais crítico do diagnóstico: significa que devedores que blindaram patrimônio estão escapando sem pagar, e você está entregando esses honorários por não saber como combater blindagens.',
+      s:['Estudar os fundamentos e os requisitos práticos da Desconsideração da Personalidade Jurídica (IDPJ) — incidente e redirecionamento','Aprender a identificar laranjas, mapear grupos econômicos e reconhecer as formas mais comuns de fraude à execução','Conhecer as medidas coercitivas atípicas do art. 139, IV do CPC — quais são, em quais situações cabem e como fundamentar cada pedido','Pesquisar jurisprudência atual sobre bloqueio de CNH, passaporte, cartão de crédito e outros instrumentos coercitivos no STJ e TJs']
+    },
+    warning:{
+      p:'Você sabe que existem ferramentas para combater blindagens patrimoniais, mas não as usa com consistência por insegurança técnica. O devedor se beneficia diretamente dessa insegurança — cada vez que você não pede por medo do indeferimento, ele fica com o dinheiro.',
+      s:['Montar um roteiro claro e objetivo para pedir IDPJ com fundamentação sólida — requisitos, provas mínimas necessárias e como estruturar o incidente','Estudar como provar grupo econômico e fraude à execução na prática forense, com base em casos reais julgados','Definir critérios objetivos para acionar cada medida coercitiva atípica — quando o pedido é cabível, quando não é e como responder ao indeferimento','Criar modelos de petição para as situações mais comuns de blindagem patrimonial na sua carteira atual']
+    },
+    good:{
+      p:'Você usa IDPJ e medidas coercitivas, mas ainda há incerteza sobre os limites e a fundamentação correta de cada instrumento. Pedidos mal fundamentados geram indeferimentos que enfraquecem sua posição em casos que você poderia ganhar.',
+      s:['Revisar a fundamentação jurídica de cada medida coercitiva que já utiliza — o problema não é a ferramenta, é como você a justifica','Criar um protocolo de resposta estruturado para indeferimentos e recursos, com argumentos preparados antecipadamente','Aprofundar o estudo de fraude à execução e desfazimento de blindagens com foco em jurisprudência atual do STJ e do TJ da sua região','Desenvolver uma abordagem sistemática para casos com devedores sofisticados, com etapas definidas e critérios de escalada']
+    },
+    excellent:{
+      p:'Arsenal técnico completo para combater blindagens e aplicar medidas coercitivas. O risco é a acomodação: novas formas de blindagem surgem constantemente e a jurisprudência sobre medidas atípicas está em permanente evolução.',
+      s:['Manter atualização contínua sobre novas modalidades de blindagem patrimonial e as decisões que as combatem','Acompanhar sistematicamente as decisões do STJ sobre medidas coercitivas atípicas, seus limites e sua evolução','Documentar os casos resolvidos como precedentes internos do escritório para uso em situações semelhantes','Identificar e registrar os padrões de blindagem mais comuns no seu perfil de cliente e região de atuação']
+    }
+  },
+  gargalos:{
+    critical:{
+      p:'Você recusa ou perde casos com frequência por insegurança técnica. Esse é um problema grave: cada caso não aceito representa honorários entregues para outro advogado, e essa situação se repete todos os meses. Não é falta de oportunidade — é falta de preparo técnico em pontos específicos.',
+      s:['Listar todos os tipos de situação em execução que você evita ou se sente inseguro para conduzir — seja busca patrimonial, blindagem, medida coercitiva ou questão processual','Para cada situação mapeada, identificar exatamente qual conhecimento técnico está faltando para conduzir com segurança','Criar um plano de estudo focado nos gargalos mais frequentes da sua carteira, com prioridade para os que aparecem com mais regularidade','Buscar casos reais semelhantes para estudar como foram conduzidos, fundamentados e decididos']
+    },
+    warning:{
+      p:'Você já perdeu casos por insegurança técnica e frequentemente improvisa diante de situações complexas. Sem identificar e resolver esses gargalos, os mesmos problemas vão se repetir nos próximos meses — e os honorários perdidos vão se acumular.',
+      s:['Mapear os três principais gargalos técnicos que mais afetam seus resultados hoje — não os que parecem maiores, mas os que aparecem com mais frequência','Para cada gargalo mapeado, definir uma ação concreta de resolução e um prazo realista de conclusão','Criar um sistema simples de registro dos casos complexos para transformar cada situação difícil em aprendizado documentado','Estabelecer um protocolo mínimo de avaliação técnica antes de aceitar novos casos de execução para não assumir o que ainda não tem condições de entregar']
+    },
+    good:{
+      p:'Você tem base sólida, mas ainda há situações específicas onde improvisa. Esses são exatamente os casos de maior complexidade — e geralmente os de maior valor de honorários. O problema não é o conhecimento geral, são os gaps pontuais.',
+      s:['Identificar os cenários específicos em que você ainda não tem uma resposta técnica estruturada e documentá-los','Estudar casos de referência nessas situações específicas para ter argumentos e estratégias preparadas antes que o problema apareça','Criar um banco de petições-modelo para as situações mais desafiadoras da sua carteira atual','Estabelecer uma rotina periódica de atualização técnica com foco nos seus gargalos reais, não em conteúdo genérico']
+    },
+    excellent:{
+      p:'Segurança técnica consistente e poucos casos perdidos por insegurança. O gargalo agora é estratégico: como selecionar melhor os casos que valem seu tempo e como estruturar um processo que não dependa exclusivamente da sua capacidade individual.',
+      s:['Criar critérios objetivos de seleção de casos — quais aceitar, quais recusar e por quê, sem depender de análise caso a caso sem parâmetros','Documentar seus processos internos de condução de execuções para facilitar eventual delegação ou expansão do escritório','Definir indicadores de performance para monitorar a saúde da sua carteira e identificar problemas antes que se tornem críticos','Estruturar uma política de honorários que reflita seu nível técnico atual e a complexidade dos casos que você de fato entrega']
+    }
+  },
+  prospeccao:{
+    critical:{
+      p:'Você não tem sistema de captação, cobra abaixo do potencial e depende de indicações imprevisíveis. O problema central é que você não está tratando a advocacia de execução como um negócio. O resultado é faturamento irregular, clientes que não entendem o valor do serviço e dificuldade constante para fechar honorários justos.',
+      s:['Definir claramente qual é o seu serviço principal de execução e para qual perfil de cliente ele é mais indicado','Estabelecer uma tabela de honorários baseada no valor gerado ao cliente, não no tempo que você vai investir','Criar um processo padrão de apresentação do seu serviço de execução para potenciais clientes — o que você faz, quais resultados entrega e por que o cliente deve te contratar','Identificar as duas ou três principais fontes de indicação do seu escritório e criar uma estratégia ativa para ativá-las com regularidade']
+    },
+    warning:{
+      p:'Você improvisa na apresentação do seu serviço e não tem critérios claros de precificação. Clientes que não entendem o que estão contratando negociam para baixo, e você cede porque não tem argumentos preparados. O resultado é faturamento imprevisível e honorários abaixo do potencial.',
+      s:['Estruturar uma abordagem padrão para apresentar seu serviço de execução — o que você faz, como funciona e qual resultado o cliente pode esperar','Definir critérios objetivos de precificação por tipo e complexidade de caso, com um piso mínimo claro e não negociável','Criar um roteiro de qualificação de clientes antes de aceitar novos casos — nem todo cliente de execução vale o seu tempo','Identificar dois ou três canais de captação mais viáveis para o seu perfil atual e começar a trabalhar cada um de forma sistemática']
+    },
+    good:{
+      p:'Você tem noção do seu valor e alguma estratégia de captação, mas ainda cede na negociação e o volume de novos casos não é previsível. A inconsistência no faturamento é a consequência direta de um processo de captação que ainda depende de circunstâncias externas.',
+      s:['Definir um piso mínimo de honorários abaixo do qual você simplesmente não trabalha — e comunicar isso com clareza desde o primeiro contato','Criar argumentos objetivos para justificar seus honorários em cada etapa da negociação, com base no valor que você entrega e na complexidade técnica','Formalizar seu processo de captação por indicação — quem indica para você, com que frequência e o que você pode fazer para aumentar esse volume','Avaliar quais canais de captação têm gerado os casos mais rentáveis e concentrar esforços neles, em vez de diversificar sem foco']
+    },
+    excellent:{
+      p:'Posicionamento claro e captação funcionando. O risco é a dependência de habilidades pessoais que não se documentam — seu processo de captação existe na sua cabeça, e isso limita o crescimento sustentável.',
+      s:['Documentar seu processo de apresentação e fechamento de novos casos para identificar onde está a maior taxa de conversão e o que pode ser otimizado','Desenvolver conteúdo que demonstre sua autoridade técnica na execução — cases, análises e posicionamento que atraiam o perfil certo de cliente','Estruturar parcerias estratégicas com escritórios e profissionais complementares que atendam o mesmo perfil de cliente que você','Definir metas mensais de novos casos por canal de captação e criar indicadores simples de acompanhamento']
+    }
+  }
+};
+
 function getFeedback(name,pct){
-  const f={
-    escritorio:{excellent:'Sua carteira é robusta e suas execuções geram resultado consistente. Você tem volume, faturamento previsível e potencial de escala imediata. O próximo nível é ampliar parcerias estratégicas e sistematizar processos para multiplicar honorários.',good:'Você tem carteira e resultados, mas ainda há espaço para destravar execuções represadas. Com o Método da Caçada sistematizado, cada execução passa a ter diagnóstico preciso e estratégia de resolução — sem improviso.',warning:'Sua carteira tem potencial, mas muita coisa está travada. Você sabe que está deixando dinheiro na mesa. Sem método estruturado de busca patrimonial e peticionamento, seus honorários continuarão represados.',critical:'Você está no início — ou sua carteira está completamente estagnada. Cada mês sem método é um mês de honorários represados que você ganhou juridicamente mas nunca vai receber. A urgência é agora.'},
-    buscabens:{excellent:'Você tem sequência estratégica de busca e age preventivamente antes da citação. Esse domínio é o diferencial que separa quem recupera crédito de quem apenas protocola petições. Continue aprimorando com jurisprudências atualizadas do STJ.',good:'Você usa mais sistemas que a média, mas ainda há lacunas na sequência estratégica e nas ações preventivas. Muitas execuções nascem mortas por falta de arresto antes da citação — e você pode estar perdendo isso sistematicamente.',warning:'Você usa os sistemas básicos sem estratégia definida e raramente age antes da citação. A tagline que define esse perfil: só pede SISBAJUD... depois tem que pedir DEUSMEAJUD. O Método da Caçada tem 11 passos para mudar isso.',critical:'Você ainda depende apenas de SISBAJUD, RENAJUD e INFOJUD — e não age preventivamente. Suas execuções podem estar nascendo mortas antes mesmo de começar. O Método da Caçada transforma esse cenário com sequência estratégica completa.'},
-    recuperacao:{excellent:'Você tem arsenal técnico completo: identifica laranjas, usa medidas coercitivas atípicas com fundamento sólido e não deixa devedores escaparem por brechas técnicas. Esse domínio vira diferencial competitivo — clientes te buscam por isso.',good:'Você já usa IDPJ e algumas medidas coercitivas, mas ainda há insegurança na fundamentação. Com o módulo de Descoberta de Laranjas, você passa a ter argumentos que a maioria dos advogados simplesmente não tem.',warning:'Você sabe que existem ferramentas avançadas mas tem insegurança para usá-las com consistência. Devedores usam blindagens patrimoniais — e você ainda não tem o arsenal técnico completo para enfrentá-los.',critical:'Você está deixando devedores escaparem por brechas que ainda não conhece. Quando o cliente diz não tem bens, a maioria dos advogados desiste. Tubarões da Execução encontram o que está escondido.'},
-    gargalos:{excellent:'Você identificou seus gargalos e tem segurança técnica para conduzir casos complexos. Raramente perde negócios por insegurança. O foco agora é sistema, escala e parcerias estratégicas para ampliar volume.',good:'Você tem base técnica mas há gargalos específicos travando resultados. Cada caso recusado por insegurança é dinheiro que ficou na mesa para sempre. Suporte técnico especializado resolve isso de forma definitiva.',warning:'Você já perdeu casos por insegurança e sente que está sozinho contra um sistema complexo. Na mentoria, você tem tutores jurídicos para casos concretos, HOTSEATs ao vivo e acesso direto ao Prof. José Andrade.',critical:'Você recusa ou perde casos com frequência por insegurança técnica. Cada caso perdido se acumula mês a mês. A mentoria existe exatamente para você nunca mais dizer não por falta de técnica — e sim por escolha estratégica.'},
-    prospeccao:{excellent:'Você tem posicionamento claro, cobra o valor justo sem hesitação e tem sistema de captação ativo. Seu faturamento é previsível e você não depende de sorte para ter novos casos. O próximo nível é parcerias estratégicas e escala.',good:'Você tem noção do seu valor, mas ainda cede na negociação e sua captação não é sistematizada. Dominar o método técnico aumenta sua autoridade — e autoridade técnica é o melhor argumento de precificação.',warning:'Você cobra abaixo do potencial, improvisa na venda do seu serviço e não tem sistema de captação replicável. Faturamento imprevisível é a consequência direta. O pilar de Prospecção da mentoria resolve isso.',critical:'Você tem vergonha de cobrar, não tem sistema de captação e seu faturamento é imprevisível. Está trabalhando muito e monetizando pouco. A estratégia individualizada de captação e as parcerias com o Prof. José Andrade mudam esse cenário.'}
-  };
-  const t=f[name];if(!t)return'';
-  if(pct>=80)return t.excellent;if(pct>=60)return t.good;if(pct>=40)return t.warning;return t.critical;
+  const key=pct>=80?'excellent':pct>=60?'good':pct>=40?'warning':'critical';
+  const d=FEEDBACKS[name]?.[key];if(!d)return'';
+  const steps=d.s.map((s,i)=>`<span class="fb-num">${i+1}</span><span>${s}</span>`).join('');
+  return `<div class="fb-problem">${d.p}</div><div class="fb-title-steps">O QUE PRECISA SER FEITO:</div><div class="fb-steps">${steps}</div>`;
+}
+
+function getFeedbackPlain(name,pct){
+  const key=pct>=80?'excellent':pct>=60?'good':pct>=40?'warning':'critical';
+  const d=FEEDBACKS[name]?.[key];if(!d)return'';
+  return d.p+'\n\nO QUE PRECISA SER FEITO:\n'+d.s.map((s,i)=>`${i+1}. ${s}`).join('\n');
 }
 
 function getQuote(name){
@@ -786,10 +889,17 @@ async function gerarPDF(){
 
     for(let i=0;i<sorted.length;i++){
       const t=sorted[i],r=res.individual[t.name],sc=scCol(r.percentage);
-      const fb=getFeedback(t.name,r.percentage),qt=getQuote(t.name);
-      sfont('normal',8.5);const fbL=doc.splitTextToSize(fb,CW-26);
+      const fb=getFeedbackPlain(t.name,r.percentage),qt=getQuote(t.name);
+      // Split handling \n correctly
+      sfont('normal',8);
+      const fbLines=fb.split('\n').flatMap(line=>{
+        if(line==='')return[''];
+        if(line==='O QUE PRECISA SER FEITO:')return[line];
+        return doc.splitTextToSize(line,CW-26);
+      });
       let qtL=[];if(qt){sfont('italic',8);qtL=doc.splitTextToSize(qt,CW-26);}
-      const cH=10+8+fbL.length*4.8+(qtL.length>0?qtL.length*4.5+6:0)+14;
+      const LH=4.6;
+      const cH=14+fbLines.length*LH+(qtL.length>0?qtL.length*4.5+8:0)+14;
       if(y+cH>H-20){y=addPage();y=18;}
       drawCard(ML,y,CW,cH);
       sfont('bold',10.5);st(...BLUE);doc.text(t.label,ML+8,y+9);
@@ -799,9 +909,27 @@ async function gerarPDF(){
       const ply=y+19;sf(...sc.fill);doc.setGState(doc.GState({opacity:0.15}));
       doc.roundedRect(ML+8,ply,35,5,1,1,'F');doc.setGState(doc.GState({opacity:1}));
       sfont('bold',7);st(...sc.fill);doc.text(`${sc.label} ${r.percentage.toFixed(0)}%`,ML+25.5,ply+3.5,{align:'center'});
-      const ty=ply+9;sfont('normal',8.5);st(200,215,230);
-      doc.text(fbL,ML+8,ty,{lineHeightFactor:1.55});
-      if(qt){const qy=ty+fbL.length*4.8+3;sf(0,30,55);doc.roundedRect(ML+8,qy-1,CW-16,qtL.length*4.5+4,1,1,'F');sf(...BLUE);doc.rect(ML+8,qy-1,1.5,qtL.length*4.5+4,'F');sfont('italic',8);st(...BLUE);doc.text(qtL,ML+12,qy+2.5,{lineHeightFactor:1.5});}
+      let ty=ply+9;
+      fbLines.forEach(line=>{
+        if(line===''){ty+=LH*0.6;return;}
+        if(line==='O QUE PRECISA SER FEITO:'){
+          sfont('bold',7.5);st(...BLUE);doc.text(line,ML+8,ty);
+          ty+=LH+1;
+        } else if(/^\d\.\s/.test(line)){
+          // Step line — draw number badge
+          const num=line.charAt(0);const rest=line.slice(3);
+          sf(0,40,80);doc.roundedRect(ML+8,ty-3,4.5,4.5,0.5,0.5,'F');
+          sfont('bold',6.5);st(...BLUE);doc.text(num,ML+10.25,ty+0.5,{align:'center'});
+          sfont('normal',8);st(200,215,230);
+          const stepLines=doc.splitTextToSize(rest,CW-40);
+          doc.text(stepLines,ML+15,ty,{lineHeightFactor:1.5});
+          ty+=stepLines.length*LH+1.5;
+        } else {
+          sfont('normal',8);st(200,215,230);doc.text(line,ML+8,ty);
+          ty+=LH;
+        }
+      });
+      if(qt){const qy=ty+3;sf(0,30,55);doc.roundedRect(ML+8,qy-1,CW-16,qtL.length*4.5+4,1,1,'F');sf(...BLUE);doc.rect(ML+8,qy-1,1.5,qtL.length*4.5+4,'F');sfont('italic',8);st(...BLUE);doc.text(qtL,ML+12,qy+2.5,{lineHeightFactor:1.5});}
       y+=cH+7;
     }
 
