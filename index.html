@@ -259,11 +259,9 @@ body::before{
 .fb-problem{margin-bottom:12px;line-height:1.7;color:var(--text-sub)}
 .fb-title-steps{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;
   color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:9px}
-.fb-steps{display:flex;flex-direction:column;gap:7px}
-.fb-steps>div{display:flex;align-items:flex-start;gap:9px;font-size:.85rem;line-height:1.55}
-.fb-num{min-width:20px;height:20px;border-radius:3px;background:rgba(0,155,255,0.15);
-  color:var(--blue);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.8rem;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.fb-step-single{font-size:.88rem;line-height:1.72;color:#fff;font-weight:500;
+  padding:12px 14px;background:rgba(0,155,255,0.08);border-radius:3px;
+  border-left:3px solid var(--blue)}
 .di-quote{font-family:'Barlow Condensed',sans-serif;font-size:.9rem;color:var(--blue);
   font-style:italic;margin-top:9px;padding-top:9px;border-top:1px solid rgba(0,155,255,0.15);
   font-weight:500;letter-spacing:.5px}
@@ -587,92 +585,92 @@ function getStatusText(pct){if(pct>=80)return'AVANCADO';if(pct>=60)return'DESENV
 const FEEDBACKS={
   escritorio:{
     critical:{
-      p:'Sua carteira está estagnada ou inexistente. Cada mês sem estrutura é um mês de honorários que você ganhou juridicamente mas que nunca vai receber. O problema não é o volume de trabalho — é a ausência de método para gerenciar e avançar as execuções que você já tem.',
-      s:['Mapear todas as execuções ativas e classificar por estágio processual (bloqueada, em andamento, aguardando decisão)','Identificar quais casos têm potencial real de recuperação e quais precisam de estratégia diferente','Definir critérios mínimos para aceitar novos casos de execução e evitar acumular processos sem saída','Criar uma rotina fixa de peticionamento com prioridades definidas por valor e probabilidade de resultado']
+      p:'Sua carteira está estagnada ou inexistente. Cada mês sem estrutura é um mês de honorários que você ganhou juridicamente mas nunca vai receber. O problema não é falta de trabalho — é a ausência de diagnóstico por caso: você não sabe exatamente onde cada execução está travada e por quê.',
+      s:'Construir o mapa de estágio individual de cada execução da sua carteira, identificando a barreira técnica específica que está travando cada processo — para parar de peticionar no escuro e começar a agir com estratégia cirúrgica em cada caso.'
     },
     warning:{
-      p:'Você tem carteira, mas a maioria está travada sem perspectiva clara de desfecho. O problema central é a falta de diagnóstico por caso: sem saber exatamente onde cada execução está travada, você não consegue destravá-la.',
-      s:['Auditar cada execução e identificar em qual etapa está travada e por qual motivo específico','Classificar os casos por nível de dificuldade (bens não localizados, devedor blindado, questão jurídica) e potencial de recuperação','Criar um fluxo de trabalho diferente por categoria de problema — o que funciona para um perfil não funciona para outro','Definir indicadores mínimos de progresso por caso para saber quando uma execução precisa de ação diferente']
+      p:'Você tem carteira, mas a maioria está travada sem perspectiva de desfecho. O problema central é que você não sabe classificar cada execução pela barreira real que a está travando — e por isso aplica a mesma abordagem para problemas completamente diferentes.',
+      s:'Fazer a triagem técnica da sua carteira atual classificando cada execução pela barreira real que a está impedindo — bens ocultos, devedor blindado, questão processual ou ausência de estratégia — e definir a próxima ação correta para cada categoria.'
     },
     good:{
-      p:'Você tem volume e resultados, mas ainda há casos represados por falta de sistematização. O gargalo não é técnico — é operacional. Sem um processo claro de priorização, os casos de maior valor ficam em segundo plano.',
-      s:['Criar uma matriz de prioridade por valor do crédito e probabilidade de sucesso estimada','Padronizar o acompanhamento de cada fase processual para não deixar prazos e oportunidades passarem','Definir gatilhos objetivos para acionar medidas mais agressivas (quando pedir bloqueio, quando requerer medida atípica)','Estruturar uma revisão periódica da carteira para identificar casos que podem ser desfechados com uma ação pontual']
+      p:'Você tem volume e resultados, mas os casos de maior valor continuam represados por falta de priorização estratégica. O gargalo não é técnico — é operacional. Sem uma sequência clara de quem atende primeiro e por quê, os honorários maiores ficam esperando.',
+      s:'Implementar um protocolo de revisão estratégica periódica da carteira com critérios objetivos de priorização — para deixar de operar por demanda reativa e passar a agir com sequência calculada sobre os casos de maior potencial.'
     },
     excellent:{
-      p:'Carteira sólida e resultados consistentes. O risco agora é o crescimento sem documentação — o que funciona no seu processo hoje depende de você, e não está registrado em lugar nenhum. Isso limita a escala.',
-      s:['Documentar os processos que geram resultado para que possam ser replicados em novos casos sem depender da sua memória','Criar indicadores de performance por execução para identificar padrões de sucesso e replicá-los','Estabelecer critérios claros e objetivos de seleção de novos clientes de execução','Avaliar periodicamente quais casos merecem mais atenção estratégica e quais devem ser encerrados ou delegados']
+      p:'Carteira sólida e resultados consistentes. O risco agora é o crescimento sem documentação — o que funciona no seu processo hoje depende exclusivamente de você, e não está registrado em nenhum lugar. Isso é um teto invisível.',
+      s:'Construir o processo documentado e replicável que já funciona na sua carteira — de forma que ele opere com consistência independente da sua presença em cada caso e possa ser aplicado por qualquer profissional que você venha a envolver.'
     }
   },
   buscabens:{
     critical:{
-      p:'Você usa apenas SISBAJUD, RENAJUD e INFOJUD e não age antes da citação. Na prática, isso significa que seus devedores têm tempo para esconder bens antes de qualquer bloqueio. A maioria das suas execuções pode estar nascendo sem chances reais de resultado.',
-      s:['Mapear todos os sistemas de busca patrimonial disponíveis além dos três básicos — há pelo menos oito fontes relevantes que a maioria dos advogados não usa','Estudar quando e como solicitar medidas cautelares antes da citação nos casos em que o risco de ocultação é alto','Criar uma sequência estruturada de busca por perfil de devedor — pessoa física, empresa ativa, empresa fechada, devedor reincidente','Pesquisar jurisprudência atualizada sobre penhora online, bloqueios alternativos e novas fontes de busca patrimonial']
+      p:'Você usa apenas SISBAJUD, RENAJUD e INFOJUD e não age antes da citação. Na prática, seus devedores têm tempo para esconder patrimônio antes de qualquer bloqueio. A maioria das suas execuções pode estar nascendo morta — e você não percebe porque não sabe o que está deixando de encontrar.',
+      s:'Estruturar a sequência técnica correta de acionamento dos sistemas de busca patrimonial — incluindo os que a maioria dos advogados desconhece — antes da citação do devedor, no momento em que o bloqueio ainda é possível e o devedor ainda não se protegeu.'
     },
     warning:{
-      p:'Você usa mais ferramentas que a média, mas sem uma sequência estratégica definida. Cada execução é tratada de forma improvisada, o que reduz drasticamente a taxa de sucesso — você ativa as ferramentas erradas na ordem errada.',
-      s:['Estruturar uma sequência padrão de busca patrimonial por perfil de devedor, definindo qual sistema acionar em qual momento','Definir critérios objetivos para decidir quando acionar medidas preventivas antes da citação','Montar um checklist de sistemas de busca para garantir que nenhuma fonte relevante fique de fora em cada caso','Estudar como identificar sinais de risco de ocultação patrimonial antes de ajuizar a execução']
+      p:'Você usa mais ferramentas que a média, mas sem uma sequência estratégica definida. Cada execução é tratada de forma improvisada — você aciona as ferramentas certas na ordem errada, no momento errado, e o devedor já se moveu antes do seu bloqueio chegar.',
+      s:'Definir o protocolo de análise de risco patrimonial que deve ser executado antes de ajuizar cada execução — para identificar o momento exato em que agir preventivamente ainda muda o resultado e quando já é tarde demais.'
     },
     good:{
-      p:'Você tem boa base de busca patrimonial, mas ainda há lacunas nas etapas preventivas e nos sistemas menos conhecidos. É exatamente nesses gaps que os devedores mais sofisticados se escondem — e onde estão os honorários que ainda não chegam até você.',
-      s:['Identificar os sistemas avançados de busca que ainda não domina e fazer um plano de estudo por cada um','Criar um protocolo de análise de risco antes de cada nova execução para decidir se há necessidade de ação antes da citação','Padronizar o pedido de arresto cautelar antes da citação para os casos em que o perfil do devedor indica risco alto','Manter atualização periódica sobre novas formas de penhora e jurisprudência do STJ sobre bloqueios atípicos']
+      p:'Você tem boa base de busca patrimonial, mas ainda há lacunas nos sistemas do segundo nível — justamente os que os devedores mais sofisticados acreditam que você não usa. Esses gaps são onde estão os honorários que ainda não chegam até você.',
+      s:'Identificar e ativar os sistemas de busca do segundo nível que você ainda não usa nos casos onde os básicos não retornam resultado — porque é exatamente lá que os devedores experientes escondem o que acreditam que você nunca vai encontrar.'
     },
     excellent:{
-      p:'Processo de busca sólido e estratégico. O risco real é a desatualização: os devedores mais sofisticados — e seus advogados — estão em constante evolução nas formas de esconder patrimônio.',
-      s:['Manter um sistema de atualização sobre novos mecanismos de busca patrimonial que surgem por portaria, resolução ou jurisprudência','Monitorar sistematicamente as decisões do STJ sobre bloqueios e penhoras atípicas e seu impacto prático','Criar um banco de dados com padrões de comportamento de devedores recorrentes na sua região e área de atuação','Documentar os casos de sucesso em busca patrimonial como referência técnica para situações semelhantes futuras']
+      p:'Processo de busca sólido e estratégico. O risco real é a desatualização: os devedores sofisticados e seus advogados monitoram ativamente o que os executivistas ainda não sabem usar. A janela de vantagem técnica fecha rápido.',
+      s:'Criar o sistema de monitoramento contínuo de novos instrumentos de busca patrimonial e decisões do STJ — para nunca chegar atrasado quando um novo mecanismo se torna o padrão e os devedores ainda não sabem que você tem acesso a ele.'
     }
   },
   recuperacao:{
     critical:{
-      p:'Quando o devedor esconde bens em laranjas ou empresas, você informa ao cliente que não há mais o que fazer. Esse é o ponto mais crítico do diagnóstico: significa que devedores que blindaram patrimônio estão escapando sem pagar, e você está entregando esses honorários por não saber como combater blindagens.',
-      s:['Estudar os fundamentos e os requisitos práticos da Desconsideração da Personalidade Jurídica (IDPJ) — incidente e redirecionamento','Aprender a identificar laranjas, mapear grupos econômicos e reconhecer as formas mais comuns de fraude à execução','Conhecer as medidas coercitivas atípicas do art. 139, IV do CPC — quais são, em quais situações cabem e como fundamentar cada pedido','Pesquisar jurisprudência atual sobre bloqueio de CNH, passaporte, cartão de crédito e outros instrumentos coercitivos no STJ e TJs']
+      p:'Quando o devedor esconde bens em laranjas ou empresas, você informa ao cliente que não há mais o que fazer. Esse é o ponto mais crítico do diagnóstico: devedores blindados estão escapando sem pagar porque você não sabe como estruturar o pedido correto no momento processual em que ele ainda tem efeito.',
+      s:'Identificar nos seus casos atuais quais devedores têm bens blindados em terceiros ou empresas — e estruturar o pedido correto de desconsideração da personalidade jurídica com a fundamentação que os juízes estão aceitando hoje, no momento processual em que esse pedido ainda tem poder de reversão.'
     },
     warning:{
-      p:'Você sabe que existem ferramentas para combater blindagens patrimoniais, mas não as usa com consistência por insegurança técnica. O devedor se beneficia diretamente dessa insegurança — cada vez que você não pede por medo do indeferimento, ele fica com o dinheiro.',
-      s:['Montar um roteiro claro e objetivo para pedir IDPJ com fundamentação sólida — requisitos, provas mínimas necessárias e como estruturar o incidente','Estudar como provar grupo econômico e fraude à execução na prática forense, com base em casos reais julgados','Definir critérios objetivos para acionar cada medida coercitiva atípica — quando o pedido é cabível, quando não é e como responder ao indeferimento','Criar modelos de petição para as situações mais comuns de blindagem patrimonial na sua carteira atual']
+      p:'Você sabe que existem ferramentas para combater blindagens, mas não as usa com consistência por insegurança na fundamentação. Cada vez que você deixa de pedir por medo do indeferimento, o devedor fica com o dinheiro — e esse padrão se repete mês a mês.',
+      s:'Montar o roteiro técnico completo do pedido de IDPJ com as provas mínimas que os juízes exigem hoje — porque sem esse roteiro você vai continuar deixando devedores blindados sairem sem pagar por medo de um indeferimento que é tecnicamente evitável.'
     },
     good:{
-      p:'Você usa IDPJ e medidas coercitivas, mas ainda há incerteza sobre os limites e a fundamentação correta de cada instrumento. Pedidos mal fundamentados geram indeferimentos que enfraquecem sua posição em casos que você poderia ganhar.',
-      s:['Revisar a fundamentação jurídica de cada medida coercitiva que já utiliza — o problema não é a ferramenta, é como você a justifica','Criar um protocolo de resposta estruturado para indeferimentos e recursos, com argumentos preparados antecipadamente','Aprofundar o estudo de fraude à execução e desfazimento de blindagens com foco em jurisprudência atual do STJ e do TJ da sua região','Desenvolver uma abordagem sistemática para casos com devedores sofisticados, com etapas definidas e critérios de escalada']
+      p:'Você usa IDPJ e medidas coercitivas, mas ainda há incerteza sobre a fundamentação correta de cada instrumento. Pedidos tecnicamente mal construídos geram indeferimentos que enfraquecem sua posição em casos que você já deveria ter ganho.',
+      s:'Construir o protocolo de resposta ao indeferimento de medidas coercitivas — com o recurso estruturado antes mesmo do juiz negar — porque a maioria dos indeferimentos acontece por falha de fundamentação, não por ausência de direito, e isso é corrigível antes de acontecer.'
     },
     excellent:{
-      p:'Arsenal técnico completo para combater blindagens e aplicar medidas coercitivas. O risco é a acomodação: novas formas de blindagem surgem constantemente e a jurisprudência sobre medidas atípicas está em permanente evolução.',
-      s:['Manter atualização contínua sobre novas modalidades de blindagem patrimonial e as decisões que as combatem','Acompanhar sistematicamente as decisões do STJ sobre medidas coercitivas atípicas, seus limites e sua evolução','Documentar os casos resolvidos como precedentes internos do escritório para uso em situações semelhantes','Identificar e registrar os padrões de blindagem mais comuns no seu perfil de cliente e região de atuação']
+      p:'Arsenal técnico completo para combater blindagens. O risco é a acomodação: novas formas de blindagem surgem constantemente e a jurisprudência sobre medidas atípicas evolui mais rápido do que a maioria dos executivistas acompanha.',
+      s:'Mapear as novas formas de blindagem patrimonial que estão sendo operadas na sua região e construir os pedidos correspondentes antes que elas se tornem amplamente conhecidas — essa janela de vantagem técnica sobre os outros advogados tem prazo.'
     }
   },
   gargalos:{
     critical:{
-      p:'Você recusa ou perde casos com frequência por insegurança técnica. Esse é um problema grave: cada caso não aceito representa honorários entregues para outro advogado, e essa situação se repete todos os meses. Não é falta de oportunidade — é falta de preparo técnico em pontos específicos.',
-      s:['Listar todos os tipos de situação em execução que você evita ou se sente inseguro para conduzir — seja busca patrimonial, blindagem, medida coercitiva ou questão processual','Para cada situação mapeada, identificar exatamente qual conhecimento técnico está faltando para conduzir com segurança','Criar um plano de estudo focado nos gargalos mais frequentes da sua carteira, com prioridade para os que aparecem com mais regularidade','Buscar casos reais semelhantes para estudar como foram conduzidos, fundamentados e decididos']
+      p:'Você recusa ou perde casos com frequência por insegurança técnica. Cada caso não aceito representa honorários entregues para outro advogado — e esse número, somado ao longo dos meses, é muito maior do que parece quando você recusa um caso isolado.',
+      s:'Calcular o valor real de honorários que você está perdendo por mês ao recusar ou perder casos por insegurança técnica — esse número, projetado para 12 meses, vai mostrar com precisão o custo real de um gargalo que você ainda não quantificou e que se repete todo mês.'
     },
     warning:{
-      p:'Você já perdeu casos por insegurança técnica e frequentemente improvisa diante de situações complexas. Sem identificar e resolver esses gargalos, os mesmos problemas vão se repetir nos próximos meses — e os honorários perdidos vão se acumular.',
-      s:['Mapear os três principais gargalos técnicos que mais afetam seus resultados hoje — não os que parecem maiores, mas os que aparecem com mais frequência','Para cada gargalo mapeado, definir uma ação concreta de resolução e um prazo realista de conclusão','Criar um sistema simples de registro dos casos complexos para transformar cada situação difícil em aprendizado documentado','Estabelecer um protocolo mínimo de avaliação técnica antes de aceitar novos casos de execução para não assumir o que ainda não tem condições de entregar']
+      p:'Você já perdeu casos por insegurança técnica e improvisa diante de situações complexas. O problema não é só o caso que você perdeu — é que sem identificar o gargalo específico, o mesmo problema vai se repetir no próximo caso semelhante.',
+      s:'Identificar o gargalo técnico específico que mais se repete na sua carteira e construir a resposta estruturada exata para ele — não de forma genérica, mas baseada nos casos reais que você já perdeu e no padrão de decisão dos juízes que você enfrenta na sua região.'
     },
     good:{
-      p:'Você tem base sólida, mas ainda há situações específicas onde improvisa. Esses são exatamente os casos de maior complexidade — e geralmente os de maior valor de honorários. O problema não é o conhecimento geral, são os gaps pontuais.',
-      s:['Identificar os cenários específicos em que você ainda não tem uma resposta técnica estruturada e documentá-los','Estudar casos de referência nessas situações específicas para ter argumentos e estratégias preparadas antes que o problema apareça','Criar um banco de petições-modelo para as situações mais desafiadoras da sua carteira atual','Estabelecer uma rotina periódica de atualização técnica com foco nos seus gargalos reais, não em conteúdo genérico']
+      p:'Você tem base sólida, mas ainda improvisa em situações específicas. Esses são exatamente os casos de maior complexidade — e geralmente os de maior valor de honorários. O improviso em casos de alto valor tem custo alto e difícil de mensurar.',
+      s:'Construir um banco das situações complexas que você já enfrentou com a estratégia técnica exata que funciona para cada uma — para parar de improvisar em casos que já deveriam ter resposta pronta e documentada, e parar de perder honorários por repetir o mesmo erro.'
     },
     excellent:{
-      p:'Segurança técnica consistente e poucos casos perdidos por insegurança. O gargalo agora é estratégico: como selecionar melhor os casos que valem seu tempo e como estruturar um processo que não dependa exclusivamente da sua capacidade individual.',
-      s:['Criar critérios objetivos de seleção de casos — quais aceitar, quais recusar e por quê, sem depender de análise caso a caso sem parâmetros','Documentar seus processos internos de condução de execuções para facilitar eventual delegação ou expansão do escritório','Definir indicadores de performance para monitorar a saúde da sua carteira e identificar problemas antes que se tornem críticos','Estruturar uma política de honorários que reflita seu nível técnico atual e a complexidade dos casos que você de fato entrega']
+      p:'Segurança técnica consistente. O gargalo agora é estratégico: você aceita casos por reflexo e recusa por intuição — sem critérios objetivos. Isso significa que você pode estar gastando seu tempo nos casos errados sem perceber.',
+      s:'Estruturar o critério objetivo de seleção de casos que define com precisão o que vale o seu tempo — sem esse filtro, você vai continuar aceitando casos pequenos por hábito e perdendo casos grandes por falta de triagem estratégica no momento certo.'
     }
   },
   prospeccao:{
     critical:{
-      p:'Você não tem sistema de captação, cobra abaixo do potencial e depende de indicações imprevisíveis. O problema central é que você não está tratando a advocacia de execução como um negócio. O resultado é faturamento irregular, clientes que não entendem o valor do serviço e dificuldade constante para fechar honorários justos.',
-      s:['Definir claramente qual é o seu serviço principal de execução e para qual perfil de cliente ele é mais indicado','Estabelecer uma tabela de honorários baseada no valor gerado ao cliente, não no tempo que você vai investir','Criar um processo padrão de apresentação do seu serviço de execução para potenciais clientes — o que você faz, quais resultados entrega e por que o cliente deve te contratar','Identificar as duas ou três principais fontes de indicação do seu escritório e criar uma estratégia ativa para ativá-las com regularidade']
+      p:'Você não tem sistema de captação, cobra abaixo do potencial e depende de indicações imprevisíveis. O resultado é faturamento irregular e clientes que não entendem o que estão contratando — o que torna cada negociação de honorários um campo minado.',
+      s:'Calcular o valor exato dos honorários que você está deixando de receber mensalmente por precificar abaixo do potencial — multiplicado por 12, esse número mostra o custo anual de não ter uma estratégia clara de apresentação e precificação do seu serviço de execução.'
     },
     warning:{
-      p:'Você improvisa na apresentação do seu serviço e não tem critérios claros de precificação. Clientes que não entendem o que estão contratando negociam para baixo, e você cede porque não tem argumentos preparados. O resultado é faturamento imprevisível e honorários abaixo do potencial.',
-      s:['Estruturar uma abordagem padrão para apresentar seu serviço de execução — o que você faz, como funciona e qual resultado o cliente pode esperar','Definir critérios objetivos de precificação por tipo e complexidade de caso, com um piso mínimo claro e não negociável','Criar um roteiro de qualificação de clientes antes de aceitar novos casos — nem todo cliente de execução vale o seu tempo','Identificar dois ou três canais de captação mais viáveis para o seu perfil atual e começar a trabalhar cada um de forma sistemática']
+      p:'Você improvisa na apresentação do seu serviço e não tem argumentos preparados para justificar seus honorários. Clientes que não entendem o que estão contratando negociam para baixo — e você cede porque não tem uma base sólida para sustentar o valor cobrado.',
+      s:'Construir o argumento de valor que justifica seus honorários com base no resultado mensurável que você entrega — não no tempo que você vai investir — de forma que o cliente entenda exatamente o que está comprando antes de perguntar o preço.'
     },
     good:{
-      p:'Você tem noção do seu valor e alguma estratégia de captação, mas ainda cede na negociação e o volume de novos casos não é previsível. A inconsistência no faturamento é a consequência direta de um processo de captação que ainda depende de circunstâncias externas.',
-      s:['Definir um piso mínimo de honorários abaixo do qual você simplesmente não trabalha — e comunicar isso com clareza desde o primeiro contato','Criar argumentos objetivos para justificar seus honorários em cada etapa da negociação, com base no valor que você entrega e na complexidade técnica','Formalizar seu processo de captação por indicação — quem indica para você, com que frequência e o que você pode fazer para aumentar esse volume','Avaliar quais canais de captação têm gerado os casos mais rentáveis e concentrar esforços neles, em vez de diversificar sem foco']
+      p:'Você tem noção do valor que entrega, mas ainda cede na negociação e não tem volume previsível de novos casos. A inconsistência no faturamento é a consequência direta de um processo de captação que depende de circunstâncias que você não controla.',
+      s:'Identificar o canal de captação que hoje gera seus clientes mais rentáveis e construir o processo replicável para aumentar o volume de entrada por esse canal específico — sem depender das outras fontes imprevisíveis que você não tem como controlar ou escalar.'
     },
     excellent:{
-      p:'Posicionamento claro e captação funcionando. O risco é a dependência de habilidades pessoais que não se documentam — seu processo de captação existe na sua cabeça, e isso limita o crescimento sustentável.',
-      s:['Documentar seu processo de apresentação e fechamento de novos casos para identificar onde está a maior taxa de conversão e o que pode ser otimizado','Desenvolver conteúdo que demonstre sua autoridade técnica na execução — cases, análises e posicionamento que atraiam o perfil certo de cliente','Estruturar parcerias estratégicas com escritórios e profissionais complementares que atendam o mesmo perfil de cliente que você','Definir metas mensais de novos casos por canal de captação e criar indicadores simples de acompanhamento']
+      p:'Posicionamento claro e captação funcionando. O risco é que o processo existe na sua cabeça — não documentado, não replicável. Isso significa que qualquer variação na sua disponibilidade impacta diretamente o volume de novos casos.',
+      s:'Documentar e sistematizar seu processo de captação e apresentação para que ele funcione de forma previsível e mensurável — independente da sua disponibilidade pessoal em cada novo contato, e de forma que você consiga identificar onde está perdendo e onde está convertendo.'
     }
   }
 };
@@ -680,14 +678,13 @@ const FEEDBACKS={
 function getFeedback(name,pct){
   const key=pct>=80?'excellent':pct>=60?'good':pct>=40?'warning':'critical';
   const d=FEEDBACKS[name]?.[key];if(!d)return'';
-  const steps=d.s.map((s,i)=>`<span class="fb-num">${i+1}</span><span>${s}</span>`).join('');
-  return `<div class="fb-problem">${d.p}</div><div class="fb-title-steps">O QUE PRECISA SER FEITO:</div><div class="fb-steps">${steps}</div>`;
+  return `<div class="fb-problem">${d.p}</div><div class="fb-title-steps">O QUE PRECISA SER FEITO:</div><div class="fb-step-single">${d.s}</div>`;
 }
 
 function getFeedbackPlain(name,pct){
   const key=pct>=80?'excellent':pct>=60?'good':pct>=40?'warning':'critical';
   const d=FEEDBACKS[name]?.[key];if(!d)return'';
-  return d.p+'\n\nO QUE PRECISA SER FEITO:\n'+d.s.map((s,i)=>`${i+1}. ${s}`).join('\n');
+  return d.p+'\n\nO QUE PRECISA SER FEITO:\n'+d.s;
 }
 
 function getQuote(name){
@@ -910,23 +907,24 @@ async function gerarPDF(){
       doc.roundedRect(ML+8,ply,35,5,1,1,'F');doc.setGState(doc.GState({opacity:1}));
       sfont('bold',7);st(...sc.fill);doc.text(`${sc.label} ${r.percentage.toFixed(0)}%`,ML+25.5,ply+3.5,{align:'center'});
       let ty=ply+9;
-      fbLines.forEach(line=>{
-        if(line===''){ty+=LH*0.6;return;}
+      fbLines.forEach((line,li)=>{
+        if(line===''){ty+=LH*0.5;return;}
         if(line==='O QUE PRECISA SER FEITO:'){
           sfont('bold',7.5);st(...BLUE);doc.text(line,ML+8,ty);
           ty+=LH+1;
-        } else if(/^\d\.\s/.test(line)){
-          // Step line — draw number badge
-          const num=line.charAt(0);const rest=line.slice(3);
-          sf(0,40,80);doc.roundedRect(ML+8,ty-3,4.5,4.5,0.5,0.5,'F');
-          sfont('bold',6.5);st(...BLUE);doc.text(num,ML+10.25,ty+0.5,{align:'center'});
-          sfont('normal',8);st(200,215,230);
-          const stepLines=doc.splitTextToSize(rest,CW-40);
-          doc.text(stepLines,ML+15,ty,{lineHeightFactor:1.5});
-          ty+=stepLines.length*LH+1.5;
         } else {
-          sfont('normal',8);st(200,215,230);doc.text(line,ML+8,ty);
-          ty+=LH;
+          // É o passo único — renderizar com destaque
+          const isStep=li>0&&fbLines[li-1]==='O QUE PRECISA SER FEITO:';
+          if(isStep){
+            sf(0,30,60);doc.roundedRect(ML+8,ty-3.5,CW-16,doc.splitTextToSize(line,CW-28).length*LH+5,1,1,'F');
+            sf(...BLUE);doc.rect(ML+8,ty-3.5,2,doc.splitTextToSize(line,CW-28).length*LH+5,'F');
+            sfont('bold',8.5);st(220,235,250);
+            const sl=doc.splitTextToSize(line,CW-28);doc.text(sl,ML+13,ty,{lineHeightFactor:1.6});
+            ty+=sl.length*LH+4;
+          } else {
+            sfont('normal',8);st(200,215,230);doc.text(line,ML+8,ty);
+            ty+=LH;
+          }
         }
       });
       if(qt){const qy=ty+3;sf(0,30,55);doc.roundedRect(ML+8,qy-1,CW-16,qtL.length*4.5+4,1,1,'F');sf(...BLUE);doc.rect(ML+8,qy-1,1.5,qtL.length*4.5+4,'F');sfont('italic',8);st(...BLUE);doc.text(qtL,ML+12,qy+2.5,{lineHeightFactor:1.5});}
