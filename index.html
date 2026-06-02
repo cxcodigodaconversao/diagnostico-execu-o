@@ -704,9 +704,9 @@ async function gerarPDF(){
     function drawFooter(){
       sf(...BLUE);doc.setGState(doc.GState({opacity:0.25}));
       doc.rect(ML,H-12,CW,0.5,'F');doc.setGState(doc.GState({opacity:1}));
-      sfont('bold',6.5);st(...BLUE);doc.text('TUBAROES DA EXECUCAO',ML,H-7);
+      sfont('bold',6.5);st(...BLUE);doc.text('TUBARÕES DA EXECUÇÃO',ML,H-7);
       sfont('normal',6.5);st(...MUTED);
-      doc.text('Prof. Jose Andrade | Mentoria de Execucao Estrategica',ML+42,H-7);
+      doc.text('Prof. José Andrade | Mentoria de Execução Estratégica',ML+42,H-7);
       doc.text('PAG. '+page,W-MR,H-7,{align:'right'});
     }
     function drawCard(x,y,w,h){
@@ -725,11 +725,11 @@ async function gerarPDF(){
     let y=18;drawBG();drawFooter();
 
     // PAGE 1 - HEADER
-    sfont('bold',8);st(...BLUE);doc.text('PROF. JOSE ANDRADE | DIAGNOSTICO ESTRATEGICO',ML,y);
+    sfont('bold',8);st(...BLUE);doc.text('PROF. JOSÉ ANDRADE | DIAGNÓSTICO ESTRATÉGICO',ML,y);
     y+=8;
-    sfont('bold',30);st(...WHITE);doc.text('TUBAROES DA',ML,y);y+=9;
-    sfont('bold',30);st(...BLUE);doc.text('EXECUCAO',ML,y);y+=10;
-    sfont('normal',9);st(...MUTED);doc.text('Descubra seu nivel de dominio nas 5 areas essenciais da Execucao Estrategica',ML,y);
+    sfont('bold',30);st(...WHITE);doc.text('TUBARÕES DA',ML,y);y+=9;
+    sfont('bold',30);st(...BLUE);doc.text('EXECUÇÃO',ML,y);y+=10;
+    sfont('normal',9);st(...MUTED);doc.text('Descubra seu nível de domínio nas 5 áreas essenciais da Execução Estratégica',ML,y);
     y+=6;sf(...BLUE);doc.rect(ML,y,30,0.8,'F');y+=10;
 
     // USER CARD
@@ -754,12 +754,12 @@ async function gerarPDF(){
     sfont('normal',8.5);st(200,215,230);
     const msgL=doc.splitTextToSize(lv.msg,infoW);doc.text(msgL.slice(0,4),infoX,sy+17,{lineHeightFactor:1.5});
     const bny=sy+sq+4;sf(0,30,60);doc.roundedRect(ML+5,bny,CW-10,7,1,1,'F');
-    sfont('bold',7.5);st(...BLUE);doc.text('REFERENCIA:',ML+9,bny+4.8);
-    sfont('normal',7.5);st(...MUTED);doc.text('Acima de 41 pts: dominio consistente. Abaixo de 60% por pilar: atencao imediata.',ML+32,bny+4.8);
+    sfont('bold',7.5);st(...BLUE);doc.text('REFERÊNCIA:',ML+9,bny+4.8);
+    sfont('normal',7.5);st(...MUTED);doc.text('Acima de 41 pts: domínio consistente. Abaixo de 60% por pilar: atenção imediata.',ML+32,bny+4.8);
     y+=scH+10;
 
     // MINI BARS
-    sfont('bold',11);st(...WHITE);doc.text('VISAO GERAL DOS 5 PILARES',ML,y);
+    sfont('bold',11);st(...WHITE);doc.text('VISÃO GERAL DOS 5 PILARES',ML,y);
     sf(...BLUE);doc.rect(ML,y+2,25,0.5,'F');y+=9;
     const sorted=[...TOPICS].sort((a,b)=>res.individual[a.name].percentage-res.individual[b.name].percentage);
     const colA=ML,colB=ML+CW/2+4,cW=CW/2-6;
@@ -775,7 +775,7 @@ async function gerarPDF(){
 
     // PAGE 2 - RADAR
     y=addPage();y=18;
-    sfont('bold',20);st(...WHITE);doc.text('VISAO GERAL DOS 5 PILARES',ML,y);
+    sfont('bold',20);st(...WHITE);doc.text('VISÃO GERAL DOS 5 PILARES',ML,y);
     sf(...BLUE);doc.rect(ML,y+3,36,0.8,'F');y+=13;
     try{const rc=document.getElementById('radarChart');if(rc){const img=rc.toDataURL('image/png');const cs=CW*0.8;doc.addImage(img,'PNG',ML+(CW-cs)/2,y,cs,cs);y+=cs+6;}}catch(e){console.warn(e);}
 
