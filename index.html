@@ -323,7 +323,7 @@ body::before{
   <div class="card cadastro-card">
     <div class="section-label">Diagnóstico Estratégico</div>
     <h2>Identifique-se <em>antes de começar</em></h2>
-    <p class="card-sub">Preencha os dados para gerar seu relatório personalizado do diagnóstico da Execução.</p>
+    <p class="card-sub">Preencha os dados para gerar seu relatório personalizado do diagnóstico.</p>
     <div class="form-grid">
       <div class="fg full">
         <label>Nome Completo</label>
@@ -358,7 +358,8 @@ body::before{
       <span class="bm-bar"></span>
       <span>Diagnóstico Estratégico</span>
       <span class="bm-bar"></span>
-       </div>
+    </div>
+  </div>
   <p>Descubra seu nível de domínio nas 5 áreas essenciais da Execução Estratégica</p>
 </div>
 
@@ -689,11 +690,7 @@ async function gerarPDF(){
 
     function drawBG(){
       sf(...BG);doc.rect(0,0,W,H,'F');
-      // grid lines
-      sd(...BLUE);doc.setLineWidth(0.08);doc.setGState(doc.GState({opacity:0.04}));
-      for(let x=0;x<=W;x+=28){doc.line(x,0,x,H);}
-      for(let y=0;y<=H;y+=28){doc.line(0,y,W,y);}
-      doc.setGState(doc.GState({opacity:1}));
+
       // corner marks
       sf(...BLUE);doc.setGState(doc.GState({opacity:0.3}));
       doc.rect(0,0,5,1,'F');doc.rect(0,0,1,5,'F');
