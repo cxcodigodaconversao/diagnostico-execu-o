@@ -873,62 +873,109 @@ async function gerarPDF(){
     });
     y+=3*19+6;
 
-    // PAGE 2 - RADAR
+    // PAGE 2 - RADAR (centralizado verticalmente)
     y=addPage();y=18;
     sfont('bold',20);st(...WHITE);doc.text('VISÃO GERAL DOS 5 PILARES',ML,y);
-    sf(...BLUE);doc.rect(ML,y+3,36,0.8,'F');y+=13;
-    try{const rc=document.getElementById('radarChart');if(rc){const img=rc.toDataURL('image/png');const cs=CW*0.8;doc.addImage(img,'PNG',ML+(CW-cs)/2,y,cs,cs);y+=cs+6;}}catch(e){console.warn(e);}
+    sf(...BLUE);doc.rect(ML,y+3,36,0.8,'F');y+=14;
+    try{
+      const rc=document.getElementById('radarChart');
+      if(rc){
+        const img=rc.toDataURL('image/png');
+        const cs=CW*0.88;
+        const availH=H-y-22;
+        const chartSz=Math.min(cs,availH);
+        const chartY=y+Math.max(0,(availH-chartSz)/2);
+        doc.addImage(img,'PNG',ML+(CW-chartSz)/2,chartY,chartSz,chartSz);
+      }
+    }catch(e){console.warn(e);}
 
-    // PAGE 3 - DETAIL
+    // PAGES 3+ - DETAIL (cálculo de altura 100% preciso antes de desenhar)
     y=addPage();y=18;
     sfont('bold',20);st(...WHITE);doc.text('RESULTADO DETALHADO POR PILAR',ML,y);
-    sf(...BLUE);doc.rect(ML,y+3,46,0.8,'F');y+=13;
+    sf(...BLUE);doc.rect(ML,y+3,46,0.8,'F');y+=15;
+
+    const LH=4.9;
+    const PW=CW-18;   // largura do texto do problema (padding 9mm cada lado)
+    const SW=CW-32;   // largura do texto do step (recuado pelo bar azul + padding)
 
     for(let i=0;i<sorted.length;i++){
-      const t=sorted[i],r=res.individual[t.name],sc=scCol(r.percentage);
-      const fb=getFeedbackPlain(t.name,r.percentage),qt=getQuote(t.name);
-      // Split handling \n correctly
-      sfont('normal',8);
-      const fbLines=fb.split('\n').flatMap(line=>{
-        if(line==='')return[''];
-        if(line==='O QUE PRECISA SER FEITO:')return[line];
-        return doc.splitTextToSize(line,CW-26);
-      });
-      let qtL=[];if(qt){sfont('italic',8);qtL=doc.splitTextToSize(qt,CW-26);}
-      const LH=4.6;
-      const cH=14+fbLines.length*LH+(qtL.length>0?qtL.length*4.5+8:0)+14;
-      if(y+cH>H-20){y=addPage();y=18;}
+      const t=sorted[i];
+      const r=res.individual[t.name];
+      const sc=scCol(r.percentage);
+
+      // Separar problema do passo único
+      const raw=getFeedbackPlain(t.name,r.percentage);
+      const sep='\n\nO QUE PRECISA SER FEITO:\n';
+      const sepIdx=raw.indexOf(sep);
+      const probTxt=sepIdx>=0?raw.slice(0,sepIdx):raw;
+      const stepTxt=sepIdx>=0?raw.slice(sepIdx+sep.length):'';
+      const qt=getQuote(t.name);
+
+      // Pré-calcular linhas com as fontes corretas
+      sfont('normal',8);     const probL=doc.splitTextToSize(probTxt,PW);
+      sfont('bold',8.5);     const stepL=doc.splitTextToSize(stepTxt,SW);
+      let qtL=[];
+      if(qt){sfont('italic',7.5);qtL=doc.splitTextToSize(qt,SW);}
+
+      // Alturas de cada seção (mm)
+      const H_HEADER  = 23;                             // título + barra + badge
+      const H_PROB    = probL.length*LH + 7;            // texto do problema
+      const H_SLABEL  = 9;                              // label "O QUE..."
+      const H_SBOX    = stepL.length*LH + 12;           // box do passo
+      const H_QUOTE   = qtL.length>0?qtL.length*LH+10:0;
+      const H_PAD     = 7;                              // padding inferior
+      const cH = H_HEADER+H_PROB+H_SLABEL+H_SBOX+H_QUOTE+H_PAD;
+
+      if(y+cH>H-22){y=addPage();y=18;}
       drawCard(ML,y,CW,cH);
+
+      // ── Cabeçalho do card
       sfont('bold',10.5);st(...BLUE);doc.text(t.label,ML+8,y+9);
-      sf(...BG2);doc.roundedRect(ML+CW-36,y+3,32,8,1,1,'F');
-      sfont('bold',8.5);st(...WHITE);doc.text(`${r.score} / ${r.maxPts}`,ML+CW-20,y+8.5,{align:'center'});
-      drawPBar(ML+8,y+13,CW-16,3,r.percentage,sc.fill);
-      const ply=y+19;sf(...sc.fill);doc.setGState(doc.GState({opacity:0.15}));
-      doc.roundedRect(ML+8,ply,35,5,1,1,'F');doc.setGState(doc.GState({opacity:1}));
-      sfont('bold',7);st(...sc.fill);doc.text(`${sc.label} ${r.percentage.toFixed(0)}%`,ML+25.5,ply+3.5,{align:'center'});
-      let ty=ply+9;
-      fbLines.forEach((line,li)=>{
-        if(line===''){ty+=LH*0.5;return;}
-        if(line==='O QUE PRECISA SER FEITO:'){
-          sfont('bold',7.5);st(...BLUE);doc.text(line,ML+8,ty);
-          ty+=LH+1;
-        } else {
-          // É o passo único — renderizar com destaque
-          const isStep=li>0&&fbLines[li-1]==='O QUE PRECISA SER FEITO:';
-          if(isStep){
-            sf(0,30,60);doc.roundedRect(ML+8,ty-3.5,CW-16,doc.splitTextToSize(line,CW-28).length*LH+5,1,1,'F');
-            sf(...BLUE);doc.rect(ML+8,ty-3.5,2,doc.splitTextToSize(line,CW-28).length*LH+5,'F');
-            sfont('bold',8.5);st(220,235,250);
-            const sl=doc.splitTextToSize(line,CW-28);doc.text(sl,ML+13,ty,{lineHeightFactor:1.6});
-            ty+=sl.length*LH+4;
-          } else {
-            sfont('normal',8);st(200,215,230);doc.text(line,ML+8,ty);
-            ty+=LH;
-          }
-        }
-      });
-      if(qt){const qy=ty+3;sf(0,30,55);doc.roundedRect(ML+8,qy-1,CW-16,qtL.length*4.5+4,1,1,'F');sf(...BLUE);doc.rect(ML+8,qy-1,1.5,qtL.length*4.5+4,'F');sfont('italic',8);st(...BLUE);doc.text(qtL,ML+12,qy+2.5,{lineHeightFactor:1.5});}
-      y+=cH+7;
+      const sw2=32;
+      sf(0,15,35);doc.roundedRect(ML+CW-sw2-7,y+3.5,sw2,8,1.5,1.5,'F');
+      sfont('bold',8);st(...WHITE);
+      doc.text(`${r.score} / ${r.maxPts}`,ML+CW-sw2/2-7,y+8.8,{align:'center'});
+
+      // ── Barra de progresso
+      drawPBar(ML+8,y+14,CW-16,3,r.percentage,sc.fill);
+
+      // ── Badge de status (largura adaptativa)
+      const bady=y+20;
+      const badgeLabel=`${sc.label}  ${r.percentage.toFixed(0)}%`;
+      sfont('bold',6.5);
+      const badgeW=doc.getTextWidth(badgeLabel)+10;
+      sf(...sc.fill);doc.setGState(doc.GState({opacity:0.15}));
+      doc.roundedRect(ML+8,bady,badgeW,5.5,1,1,'F');
+      doc.setGState(doc.GState({opacity:1}));
+      st(...sc.fill);doc.text(badgeLabel,ML+8+badgeW/2,bady+4,{align:'center'});
+
+      // ── Texto do problema
+      let cy=bady+9;
+      sfont('normal',8);st(185,210,235);
+      doc.text(probL,ML+9,cy,{lineHeightFactor:1.65});
+      cy+=probL.length*LH+7;
+
+      // ── Label "O QUE PRECISA SER FEITO:"
+      sfont('bold',7.5);st(...BLUE);doc.text('O QUE PRECISA SER FEITO:',ML+9,cy);
+      cy+=8;
+
+      // ── Box do passo único
+      const sboxH=stepL.length*LH+12;
+      sf(0,18,42);doc.roundedRect(ML+8,cy-4,CW-16,sboxH,1.5,1.5,'F');
+      sf(...BLUE);doc.rect(ML+8,cy-4,3,sboxH,'F');
+      sfont('bold',8.5);st(228,242,255);
+      doc.text(stepL,ML+15,cy+1,{lineHeightFactor:1.68});
+      cy+=sboxH+3;
+
+      // ── Citação
+      if(qt&&qtL.length>0){
+        const qH=qtL.length*LH+8;
+        sf(0,10,28);doc.roundedRect(ML+8,cy,CW-16,qH,1,1,'F');
+        sfont('italic',7.5);st(90,175,255);
+        doc.text(qtL,ML+13,cy+4.5,{lineHeightFactor:1.55});
+      }
+
+      y+=cH+9;
     }
 
     const ds=new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
