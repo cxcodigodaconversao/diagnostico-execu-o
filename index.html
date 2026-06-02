@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico Tubarões da Execução | Prof. José Andrade</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#061728;
+  --bg2:#0a2540;
+  --blue:#009BFF;
+  --blue-dim:rgba(0,155,255,0.12);
+  --blue-glow:rgba(0,155,255,0.25);
+  --text:#F4F6F8;
+  --text-sub:#c8d2de;
+  --text-muted:#8A9BB0;
+  --border:rgba(0,155,255,0.14);
+  --border2:rgba(255,255,255,0.08);
+  --red:#e74c3c;
+  --orange:#f39c12;
+  --green:#27ae60;
+  --shadow:0 0 60px rgba(0,155,255,0.06);
+}
+body{
+  font-family:'Barlow',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  line-height:1.6;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* ─── BACKGROUND DECORATIONS ─── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,155,255,0.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,155,255,0.035) 1px,transparent 1px);
+  background-size:52px 52px;
+  pointer-events:none;z-index:0
+}
+.deco-circle{position:fixed;border-radius:50%;pointer-events:none;z-index:0}
+.deco-c1{width:65vw;height:65vw;top:-18%;right:-18%;
+  border:1px solid rgba(0,155,255,0.07);
+  background:radial-gradient(circle,rgba(0,155,255,0.05) 0%,transparent 65%)}
+.deco-c2{width:45vw;height:45vw;top:-5%;right:-5%;
+  border:1px solid rgba(0,155,255,0.05)}
+.deco-c3{width:32vw;height:32vw;bottom:-8%;left:-8%;
+  border:1px solid rgba(0,155,255,0.05);
+  background:radial-gradient(circle,rgba(0,155,255,0.03) 0%,transparent 65%)}
+
+/* ─── LAYOUT ─── */
+.container{max-width:900px;margin:0 auto;padding:20px;min-height:100vh;position:relative;z-index:1}
+
+/* ─── HEADER ─── */
+.header{text-align:center;padding:44px 20px 50px;position:relative}
+.header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:80px;height:2px;background:var(--blue);box-shadow:0 0 18px var(--blue-glow)}
+.brand-mark{display:flex;flex-direction:column;align-items:center;margin-bottom:28px;gap:2px}
+.brand-mark .bm-label{font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:600;
+  color:var(--blue);letter-spacing:3px;text-transform:uppercase}
+.brand-mark .bm-badge{
+  display:inline-flex;align-items:center;gap:12px;
+  border:1px solid rgba(0,155,255,0.25);border-radius:6px;
+  padding:8px 22px;background:rgba(0,155,255,0.06)
+}
+.brand-mark .bm-badge .bm-bar{width:3px;height:18px;background:var(--blue);border-radius:2px}
+.brand-mark .bm-badge span{font-family:'Barlow Condensed',sans-serif;font-size:.8rem;
+  font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--blue)}
+.header h1{font-family:'Barlow Condensed',sans-serif;font-size:clamp(2.4rem,6vw,3.8rem);
+  font-weight:900;letter-spacing:-0.5px;line-height:1;margin-bottom:10px;text-transform:uppercase}
+.header h1 .w1{color:#fff}
+.header h1 .w2{color:var(--blue)}
+.header .tagline{font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;
+  color:var(--blue);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.header p{font-size:.95rem;color:var(--text-sub);max-width:560px;margin:0 auto;font-weight:300}
+
+/* ─── PROGRESS ─── */
+.progress-section{background:rgba(10,37,64,0.9);border:1px solid var(--border);
+  border-radius:6px;padding:16px 22px;margin-bottom:22px;backdrop-filter:blur(10px)}
+.progress-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.prog-text{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;color:var(--text-sub);
+  font-weight:500;letter-spacing:1px;text-transform:uppercase}
+.prog-text strong{color:var(--blue)}
+.pbar{width:100%;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.pfill{height:100%;background:var(--blue);border-radius:2px;
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 0 10px var(--blue-glow);position:relative}
+
+/* ─── CARD BASE ─── */
+.card{background:rgba(10,37,64,0.9);border:1px solid var(--border);border-radius:6px;
+  box-shadow:var(--shadow);backdrop-filter:blur(10px);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--blue);box-shadow:0 0 12px var(--blue-glow)}
+/* corner marks */
+.card::after{content:'';position:absolute;bottom:0;right:0;
+  width:40px;height:40px;
+  border-bottom:1px solid rgba(0,155,255,0.2);
+  border-right:1px solid rgba(0,155,255,0.2)}
+
+/* ─── CADASTRO ─── */
+.cadastro-section{display:flex;flex-direction:column;justify-content:center;min-height:60vh}
+.cadastro-card{padding:40px 36px}
+.section-label{font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:600;
+  color:var(--blue);letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;
+  display:flex;align-items:center;gap:10px}
+.section-label::before{content:'';width:16px;height:1px;background:var(--blue)}
+.cadastro-card h2{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:800;
+  color:#fff;margin-bottom:6px;text-transform:uppercase;line-height:1.1}
+.cadastro-card h2 em{color:var(--blue);font-style:normal}
+.card-sub{font-size:.88rem;color:var(--text-muted);margin-bottom:28px;font-weight:300}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:26px}
+.fg{display:flex;flex-direction:column;gap:6px}
+.fg.full{grid-column:1/-1}
+.fg label{font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:700;
+  color:var(--blue);text-transform:uppercase;letter-spacing:2px}
+.fg input{background:rgba(0,155,255,0.05);border:1px solid rgba(0,155,255,0.18);
+  border-radius:4px;padding:12px 14px;font-size:.92rem;color:#fff;outline:none;
+  transition:border-color .2s,box-shadow .2s;font-family:'Barlow',sans-serif;font-weight:400}
+.fg input::placeholder{color:var(--text-muted)}
+.fg input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(0,155,255,0.12)}
+.fg input.err{border-color:var(--red)}
+.ferr{font-size:.73rem;color:var(--red);display:none;font-family:'Barlow',sans-serif}
+.fg input.err~.ferr{display:block}
+.btn-start{width:100%;padding:15px;background:var(--blue);color:#fff;border:none;
+  border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;
+  cursor:pointer;text-transform:uppercase;letter-spacing:2px;transition:all .25s;
+  box-shadow:0 6px 24px rgba(0,155,255,0.3)}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(0,155,255,0.4);
+  background:#19a7ff}
+
+/* ─── QUESTION CARD ─── */
+.quiz-section{flex:1;display:flex;flex-direction:column}
+.question-card{padding:36px 32px;transition:all .3s cubic-bezier(.4,0,.2,1)}
+.question-card.fade-out{opacity:0;transform:translateX(-24px)}
+.pilar-tag{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(0,155,255,0.08);border:1px solid rgba(0,155,255,0.22);
+  color:var(--blue);padding:8px 18px;border-radius:3px;
+  font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:2.5px;margin-bottom:22px
+}
+.pilar-tag .pt-dot{width:6px;height:6px;background:var(--blue);border-radius:50%;
+  animation:blink 2s infinite;box-shadow:0 0 6px var(--blue)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.q-num{font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:600;
+  color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.q-text{font-family:'Barlow Condensed',sans-serif;font-size:1.35rem;font-weight:700;
+  color:#fff;margin-bottom:10px;line-height:1.4;text-transform:uppercase}
+.q-obj{font-size:.82rem;color:var(--text-muted);margin-bottom:22px;line-height:1.6;
+  padding:10px 14px;background:rgba(0,155,255,0.05);border-radius:3px;
+  border-left:2px solid rgba(0,155,255,0.4);display:none}
+.q-obj strong{color:var(--blue);font-family:'Barlow Condensed',sans-serif;
+  letter-spacing:1px;text-transform:uppercase;font-size:.78rem}
+
+/* ─── OPTIONS ─── */
+.options-list{display:flex;flex-direction:column;gap:8px;margin:20px 0}
+.opt-label{cursor:pointer;display:flex;align-items:flex-start;gap:14px;
+  background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);
+  border-radius:4px;padding:14px 16px;transition:all .2s cubic-bezier(.4,0,.2,1)}
+.opt-label:hover{border-color:rgba(0,155,255,0.35);background:rgba(0,155,255,0.06)}
+.opt-label.selected{border-color:var(--blue);background:rgba(0,155,255,0.09)}
+.opt-label.selected .opt-num{background:var(--blue);color:#fff;border-color:var(--blue)}
+.opt-radio{display:none}
+.opt-num{min-width:28px;height:28px;border-radius:3px;border:1px solid rgba(255,255,255,0.15);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem;
+  color:var(--text-muted);transition:all .2s;flex-shrink:0;margin-top:1px}
+.opt-text{font-size:.88rem;color:var(--text-sub);line-height:1.55;font-weight:400}
+
+/* ─── NAVIGATION ─── */
+.nav-btns{display:flex;justify-content:space-between;margin-top:28px;gap:14px}
+.btn{padding:12px 26px;border:none;border-radius:4px;
+  font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;
+  cursor:pointer;transition:all .22s;text-transform:uppercase;letter-spacing:2px}
+.btn-sec{background:transparent;color:var(--text-muted);border:1px solid rgba(255,255,255,0.15)}
+.btn-sec:hover:not(:disabled){border-color:rgba(255,255,255,0.3);color:var(--text-sub)}
+.btn-pri{background:var(--blue);color:#fff;border:1px solid transparent;
+  box-shadow:0 4px 18px rgba(0,155,255,0.25)}
+.btn-pri:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 26px rgba(0,155,255,0.38);background:#19a7ff}
+.btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
+
+/* ─── RESULTS ─── */
+.results{display:none}
+.results-header{text-align:center;margin-bottom:42px}
+.results-header h2{font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(1.8rem,5vw,2.8rem);color:#fff;margin-bottom:18px;
+  font-weight:900;text-transform:uppercase;letter-spacing:-0.5px}
+.results-header h2 em{color:var(--blue);font-style:normal}
+.score-card{padding:46px 36px;text-align:center}
+.score-inner{display:flex;flex-direction:column;align-items:center}
+.score-box{
+  font-family:'Barlow Condensed',sans-serif;font-size:5rem;font-weight:900;color:#fff;
+  background:rgba(0,155,255,0.08);border:1px solid rgba(0,155,255,0.25);
+  display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+  width:180px;height:180px;border-radius:6px;margin-bottom:22px;line-height:1;
+  box-shadow:inset 0 0 30px rgba(0,155,255,0.06)
+}
+.score-box small{font-size:.95rem;color:var(--text-muted);font-weight:400;
+  font-family:'Barlow',sans-serif;margin-top:4px}
+.score-level{font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:800;
+  color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
+.score-msg{font-size:.95rem;color:var(--text-sub);line-height:1.72;max-width:620px;
+  margin:0 auto;font-weight:300}
+.bench{margin-top:20px;padding:12px 20px;background:rgba(0,155,255,0.06);
+  border-radius:4px;font-size:.82rem;color:var(--text-sub);
+  border:1px solid rgba(0,155,255,0.18);font-family:'Barlow',sans-serif}
+.bench strong{color:var(--blue);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px}
+
+/* ─── PROBLEM AREA ─── */
+.prob-area{background:rgba(231,76,60,0.07);border:1px solid rgba(231,76,60,0.2);
+  border-radius:4px;padding:20px 26px;margin:34px 0}
+.prob-area h4{color:var(--red);font-family:'Barlow Condensed',sans-serif;font-size:1rem;
+  font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;
+  display:flex;align-items:center;gap:8px}
+.prob-area h4::before{content:'';width:3px;height:14px;background:var(--red);border-radius:2px}
+.prob-area p{color:var(--text-sub);font-size:.88rem;line-height:1.7;font-weight:300}
+.prob-area strong{color:var(--red)}
+
+/* ─── CHART ─── */
+.chart-wrap{max-width:680px;margin:42px auto;padding:42px 34px}
+.chart-title{text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;
+  font-weight:800;color:#fff;margin-bottom:26px;text-transform:uppercase;letter-spacing:1px}
+.chart-title em{color:var(--blue);font-style:normal}
+
+/* ─── DETAIL GRID ─── */
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin-top:42px}
+.detail-item{padding:26px;transition:transform .25s;border-left:2px solid transparent}
+.detail-item:hover{transform:translateX(4px)}
+.detail-item.excellent{border-left-color:var(--green)}
+.detail-item.good{border-left-color:var(--blue)}
+.detail-item.warning{border-left-color:var(--orange)}
+.detail-item.critical{border-left-color:var(--red)}
+.di-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.di-title{font-family:'Barlow Condensed',sans-serif;color:var(--blue);font-weight:700;
+  font-size:1rem;text-transform:uppercase;letter-spacing:1px;max-width:200px;line-height:1.2}
+.di-score{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;color:#fff}
+.di-score small{font-size:.85rem;color:var(--text-muted);font-weight:400}
+.di-bar{width:100%;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin-bottom:12px}
+.di-fill{height:100%;border-radius:2px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.di-fill.excellent{background:var(--green)}
+.di-fill.good{background:var(--blue)}
+.di-fill.warning{background:var(--orange)}
+.di-fill.critical{background:var(--red)}
+.di-status{display:inline-flex;align-items:center;gap:7px;font-family:'Barlow Condensed',sans-serif;
+  font-size:.8rem;font-weight:700;padding:5px 12px;border-radius:3px;margin-bottom:14px;
+  text-transform:uppercase;letter-spacing:1px}
+.di-status.excellent{background:rgba(39,174,96,.1);color:var(--green)}
+.di-status.good{background:rgba(0,155,255,.1);color:var(--blue)}
+.di-status.warning{background:rgba(243,156,18,.1);color:var(--orange)}
+.di-status.critical{background:rgba(231,76,60,.1);color:var(--red)}
+.di-fb{font-size:.86rem;color:var(--text-sub);line-height:1.65;padding:13px;
+  background:rgba(0,155,255,0.05);border-radius:3px;border-left:2px solid rgba(0,155,255,0.3);
+  font-weight:300}
+.di-quote{font-family:'Barlow Condensed',sans-serif;font-size:.9rem;color:var(--blue);
+  font-style:italic;margin-top:9px;padding-top:9px;border-top:1px solid rgba(0,155,255,0.15);
+  font-weight:500;letter-spacing:.5px}
+
+/* ─── CTA ─── */
+.cta-section{margin-top:42px;text-align:center;padding:44px 36px}
+.cta-section h3{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;
+  color:#fff;margin-bottom:12px;text-transform:uppercase;letter-spacing:-0.3px}
+.cta-section h3 em{color:var(--blue);font-style:normal}
+.cta-section p{color:var(--text-sub);margin-bottom:26px;max-width:520px;margin-left:auto;
+  margin-right:auto;line-height:1.7;font-size:.92rem;font-weight:300}
+.btn-cta{display:inline-flex;align-items:center;gap:9px;background:var(--blue);color:#fff;
+  padding:15px 36px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;
+  font-weight:700;text-decoration:none;text-transform:uppercase;letter-spacing:2px;
+  transition:all .25s;box-shadow:0 6px 24px rgba(0,155,255,0.3)}
+.btn-cta:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(0,155,255,0.42);background:#19a7ff}
+.btn-pdf{display:inline-flex;align-items:center;gap:9px;background:transparent;color:var(--blue);
+  padding:13px 32px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:1rem;
+  font-weight:700;text-transform:uppercase;letter-spacing:2px;transition:all .25s;
+  border:1px solid rgba(0,155,255,0.4);cursor:pointer;margin-top:12px}
+.btn-pdf:hover{border-color:var(--blue);background:rgba(0,155,255,0.08);transform:translateY(-1px)}
+.btn-pdf:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-pdf svg{width:17px;height:17px}
+.restart-btn{display:inline-flex;align-items:center;gap:8px;background:transparent;
+  color:var(--text-muted);border:1px solid rgba(255,255,255,0.1);padding:11px 26px;
+  border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:600;
+  cursor:pointer;margin-top:12px;text-transform:uppercase;letter-spacing:1.5px;transition:all .25s}
+.restart-btn:hover{border-color:rgba(255,255,255,0.25);color:var(--text-sub)}
+.cta-btns{display:flex;flex-direction:column;align-items:center;gap:2px}
+
+/* ─── DIVIDER ─── */
+.section-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(0,155,255,0.2),transparent);margin:10px 0}
+
+@media(max-width:768px){
+  .container{padding:14px}
+  .header{padding:30px 14px 40px}
+  .header h1{font-size:2.2rem}
+  .question-card{padding:24px 16px}
+  .q-text{font-size:1.1rem}
+  .opt-label{padding:12px 13px}
+  .opt-text{font-size:.84rem}
+  .form-grid{grid-template-columns:1fr}
+  .fg.full{grid-column:1}
+  .cadastro-card,.score-card,.cta-section,.chart-wrap{padding:28px 16px}
+  .score-box{width:150px;height:150px;font-size:4rem}
+  .detail-grid{grid-template-columns:1fr}
+  .detail-item{padding:22px 16px}
+  .nav-btns{gap:10px}
+  .btn{padding:11px 18px;font-size:.92rem}
+}
+@media(max-width:480px){
+  .header h1{font-size:1.9rem}
+  .q-text{font-size:1rem}
+}
+</style>
+</head>
+<body>
+<div class="deco-circle deco-c1"></div>
+<div class="deco-circle deco-c2"></div>
+<div class="deco-circle deco-c3"></div>
+<div class="container">
+
+<!-- CADASTRO -->
+<div id="cadastroSection" class="cadastro-section">
+  <div class="card cadastro-card">
+    <div class="section-label">Diagnóstico Estratégico</div>
+    <h2>Identifique-se <em>antes de começar</em></h2>
+    <p class="card-sub">Preencha os dados para gerar seu relatório personalizado do diagnóstico da Execução.</p>
+    <div class="form-grid">
+      <div class="fg full">
+        <label>Nome Completo</label>
+        <input type="text" id="iNome" placeholder="Ex.: Dr. Carlos Henrique Souza" maxlength="80">
+        <span class="ferr">Por favor, informe seu nome completo.</span>
+      </div>
+      <div class="fg full">
+        <label>E-mail</label>
+        <input type="email" id="iEmail" placeholder="seu@email.com.br" maxlength="80">
+        <span class="ferr">Por favor, informe um e-mail válido.</span>
+      </div>
+      <div class="fg">
+        <label>Cidade / UF</label>
+        <input type="text" id="iCidade" placeholder="Ex.: São Paulo - SP" maxlength="60">
+        <span class="ferr">Por favor, informe sua cidade.</span>
+      </div>
+      <div class="fg">
+        <label>Data</label>
+        <input type="date" id="iData">
+        <span class="ferr">Por favor, informe a data.</span>
+      </div>
+    </div>
+    <button class="btn-start" onclick="startDiag()">INICIAR DIAGNÓSTICO</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header" id="mainHeader" style="display:none">
+  <div class="brand-mark">
+    <span class="bm-label">Prof. José Andrade</span>
+    <div class="bm-badge">
+      <span class="bm-bar"></span>
+      <span>Diagnóstico Estratégico</span>
+      <span class="bm-bar"></span>
+    </div>
+  </div>
+  <h1><span class="w2">Execução</span></h1>
+  <p>Descubra seu nível de domínio nas 5 áreas essenciais da Execução Estratégica</p>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-section" id="mainProgress" style="display:none">
+  <div class="progress-info">
+    <span class="prog-text">Progresso: <strong id="pPct">9%</strong></span>
+    <span class="prog-text" id="pCount" style="color:var(--text-muted)">Pergunta 1 de 11</span>
+  </div>
+  <div class="pbar"><div class="pfill" id="pFill" style="width:0%"></div></div>
+</div>
+
+<!-- QUIZ -->
+<div class="quiz-section" id="quizSection" style="display:none">
+  <div class="card question-card" id="qCard">
+    <div class="pilar-tag" id="topicPill"><span class="pt-dot"></span><span id="topicName">PILAR 1</span></div>
+    <div class="q-num" id="qNum">PERGUNTA 1 / 11</div>
+    <div class="q-text" id="qText"></div>
+    <div class="q-obj" id="qObj"></div>
+    <div class="options-list" id="optionsList"></div>
+    <div class="nav-btns">
+      <button class="btn btn-sec" id="prevBtn" onclick="prevQ()" style="visibility:hidden">ANTERIOR</button>
+      <button class="btn btn-pri" id="nextBtn" onclick="nextQ()" disabled>PRÓXIMA</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="results">
+  <div class="results-header">
+    <h2 id="resultsTitle">DIAGNÓSTICO <em>ESTRATÉGICO</em></h2>
+    <div class="card score-card">
+      <div class="score-inner">
+        <div class="score-box">
+          <span id="scoreNum">0</span>
+          <small id="scoreMax">/ 55 pts</small>
+        </div>
+        <div class="score-level" id="scoreLevel">CALCULANDO...</div>
+        <div class="score-msg" id="scoreMsg"></div>
+        <div class="bench">
+          <strong>REFERÊNCIA:</strong> Pontuações acima de 41 indicam domínio consistente.
+          Pilares abaixo de 60% precisam de atenção imediata.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="prob-area" id="probArea" style="display:none">
+    <h4>Pilares com Atenção Urgente</h4>
+    <p id="probText"></p>
+  </div>
+  <div class="section-divider"></div>
+  <div class="card chart-wrap">
+    <h3 class="chart-title">Visão Geral dos <em>5 Pilares</em></h3>
+    <canvas id="radarChart" width="400" height="400"></canvas>
+  </div>
+  <div class="detail-grid" id="detailGrid"></div>
+  <div class="card cta-section" style="padding:30px 36px">
+    <button class="btn-pdf" id="pdfBtn" onclick="gerarPDF()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+      BAIXAR RELATÓRIO PDF
+    </button>
+  </div>
+</div>
+
+</div>
+<script>
+// ═══════════ DATA ═══════════
+const TOPICS=[
+  {name:'escritorio',label:'ESCRITÓRIO',shortLabel:'Escritório',maxPts:15,
+   objetivo:'Revelar o volume de execuções, honorários represados e urgência real.',
+   questions:[
+    {text:'QUANTAS EXECUÇÕES ATIVAS VOCÊ TEM HOJE NO SEU ESCRITÓRIO?',
+     opts:['Nenhuma. Ainda não atuo com execução ou estou começando agora.','Poucas (1 a 10 processos). Carteira pequena, ainda em formação.','Média (11 a 30 processos). Já tenho carteira, mas muita coisa travada.','Grande (31 a 60 processos). Volume significativo, preciso de método.','Muito grande (mais de 60 processos). Escala urgente.']},
+    {text:'QUANTO VOCÊ ESTIMA QUE TEM EM HONORÁRIOS REPRESADOS?',
+     opts:['Menos de R$ 50.000','Entre R$ 50.000 e R$ 150.000','Entre R$ 150.000 e R$ 500.000','Entre R$ 500.000 e R$ 1 milhão','Acima de R$ 1 milhão']},
+    {text:'COMO VOCÊ DESCREVERIA O ESTÁGIO ATUAL DA MAIORIA DAS SUAS EXECUÇÕES?',
+     opts:['A maioria está completamente travada. Não encontro bens, não tenho retorno e não sei mais o que peticionar.','Andam devagar. Peço os sistemas básicos e fico aguardando. Raramente tenho resultado efetivo.','Tenho algum resultado, mas sei que estou deixando dinheiro na mesa por falta de técnica.','Tenho resultados razoáveis, mas quero escalar e captar mais clientes nessa área.','Minhas execuções têm resultado consistente e faturamento previsível.']}
+   ]},
+  {name:'buscabens',label:'PROCURA DE BENS',shortLabel:'Busca de Bens',maxPts:10,
+   objetivo:'Avaliar o conhecimento técnico sobre sistemas de busca patrimonial e ações preventivas.',
+   questions:[
+    {text:'QUANDO VOCÊ VAI EXECUTAR UM DEVEDOR, QUAIS SISTEMAS DE BUSCA VOCÊ UTILIZA?',
+     opts:['Uso apenas SISBAJUD, RENAJUD e INFOJUD. São os únicos que conheço.','Conheço mais sistemas, mas não sei usá-los com estratégia definida.','Uso mais ferramentas, mas sem uma sequência estruturada — vou tentando.','Tenho sequência, mas não domino ferramentas avançadas como SNIPER, CENSEC ou COAF.','Tenho método claro: sei qual sistema, em qual ordem e com qual fundamentação jurídica.']},
+    {text:'VOCÊ JÁ PENSA EM ESTRATÉGIAS PARA EVITAR QUE O DEVEDOR OCULTE BENS ANTES DE SER CITADO?',
+     opts:['Nunca pensei nisso. Entro com o processo e aguardo o que aparece.','Sei que é importante, mas não tenho estratégia clara para agir antes da citação.','Às vezes peço arresto cautelar antes da citação, mas não com consistência.','Tenho algumas estratégias preventivas, mas insegurança se estão atualizadas.','Sempre analiso o risco de ocultação antecipada e ajo com medidas preventivas fundamentadas.']}
+   ]},
+  {name:'recuperacao',label:'RECUPERAÇÃO DO CRÉDITO',shortLabel:'Recuperação',maxPts:10,
+   objetivo:'Avaliar o domínio técnico para identificar fraudes, laranjas e aplicar medidas coercitivas.',
+   questions:[
+    {text:'QUANDO VOCÊ IDENTIFICA QUE O DEVEDOR BLINDOU BENS EM PARENTES OU EMPRESAS, O QUE VOCÊ FAZ?',
+     opts:['Não sei como agir. Costumo informar ao cliente que não há mais o que fazer.','Sei que existe algo a fazer, mas tenho insegurança técnica para estruturar o pedido.','Já pedi IDPJ (Desconsideração da Personalidade Jurídica) algumas vezes, mas sem convicção.','Peço IDPJ e reconhecimento de fraude, mas sem estratégia completa para provar o grupo econômico.','Tenho roteiro claro: identifico laranjas, mapeio grupo econômico e formulo pedidos com fundamento sólido.']},
+    {text:'VOCÊ JÁ UTILIZOU MEDIDAS COERCITIVAS ATÍPICAS (CNH, PASSAPORTE, CARTÃO DE CRÉDITO) PARA PRESSIONAR O DEVEDOR?',
+     opts:['Nunca ouvi falar ou nunca considerei usar.','Já ouvi falar, mas tenho medo de o juiz indeferir e não sei como fundamentar o pedido.','Já pedi algumas vezes, mas sem critério claro sobre quando e como usar cada medida.','Uso com frequência, mas ainda tenho dúvidas sobre os limites e como reagir ao indeferimento.','Tenho domínio completo: sei quando, como e com qual fundamentação solicitar cada medida.']}
+   ]},
+  {name:'gargalos',label:'GARGALOS SISTÊMICOS',shortLabel:'Gargalos',maxPts:10,
+   objetivo:'Identificar os gargalos do escritório e conectar com os pilares da mentoria.',
+   questions:[
+    {text:'QUAL É O SEU MAIOR OBSTÁCULO PARA TER RESULTADOS CONSISTENTES EM EXECUÇÃO?',
+     opts:['Não sei o que fazer quando o devedor não tem bens aparentes.','Tenho dificuldade em identificar fraudes, laranjas e blindagens patrimoniais.','Sei o que fazer tecnicamente, mas o juiz indefere tudo que peço.','Não consigo precificar bem meus honorários — cobro pouco e me sinto desvalorizado.','Não tenho clientes suficientes — tenho técnica mas falta carteira e captação.']},
+    {text:'VOCÊ JÁ PERDEU OU DEIXOU DE ACEITAR UM CASO DE EXECUÇÃO POR INSEGURANÇA TÉCNICA?',
+     opts:['Sim, com frequência. Recuso ou perco casos regularmente por não saber como conduzir.','Sim, algumas vezes. Especialmente em casos mais complexos ou com muito a perder.','Raramente, mas quando acontece fico me perguntando quanto dinheiro deixei na mesa.','Quase nunca. Costumo pegar todos os casos, mesmo sem total certeza do que fazer.','Não. Tenho segurança para avaliar cada caso e decidir com critério.']}
+   ]},
+  {name:'prospeccao',label:'PROSPECÇÃO E RECORRÊNCIA',shortLabel:'Prospecção',maxPts:15,
+   objetivo:'Avaliar captação de clientes, precificação e previsibilidade de faturamento.',
+   questions:[
+    {text:'COMO VOCÊ COSTUMA COBRAR SEUS HONORÁRIOS EM EXECUÇÃO?',
+     opts:['Cobro muito pouco. Tenho vergonha ou medo de perder o cliente se cobrar o valor justo.','Cobro sem critério definido — aceito o que o cliente propõe ou o que parece razoável.','Tenho uma referência de valor, mas negocio muito e raramente mantenho o preço inicial.','Tenho tabela definida, mas às vezes cedo na negociação por insegurança.','Tenho clareza total do meu valor e não negocio para baixo. Sei justificar cada centavo cobrado.']},
+    {text:'COMO A MAIORIA DOS SEUS CLIENTES DE EXECUÇÃO CHEGA ATÉ VOCÊ?',
+     opts:['Quase não tenho clientes específicos de execução. Atendo o que aparece.','Vêm por indicação, mas de forma imprevisível. Não tenho como prever o próximo mês.','Tenho alguma estratégia de indicação, mas sem um sistema consistente e replicável.','Tenho presença digital ou parcerias, mas ainda não gera volume suficiente.','Tenho sistema ativo de captação. Recebo novos casos de execução com regularidade.']},
+    {text:'VOCÊ CONSEGUE EXPLICAR COM CLAREZA O VALOR DO SEU TRABALHO E JUSTIFICAR SEUS HONORÁRIOS?',
+     opts:['Não. Tenho dificuldade em vender meu serviço e acabo aceitando o que o cliente propõe.','Às vezes. Depende do caso e da confiança que sinto no momento.','Consigo explicar, mas improviso — não tenho uma abordagem estruturada.','Tenho abordagem, mas perco clientes quando o valor assusta.','Sim. Tenho clareza e segurança. Raramente perco cliente por preço.']}
+   ]}
+];
+
+const ALL_Q=[];
+TOPICS.forEach(t=>t.questions.forEach((q,qi)=>ALL_Q.push({
+  topicName:t.name,topicLabel:t.label,topicObj:t.objetivo,qIdx:qi,
+  text:q.text,opts:q.opts,id:`${t.name}_${qi}`
+})));
+const TOTAL=ALL_Q.length;
+
+let curQ=0,answers={},radarChart,lastResults=null;
+let userData={nome:'',email:'',cidade:'',data:''};
+
+// ── INIT
+(function(){ const d=new Date().toISOString().split('T')[0]; const el=document.getElementById('iData'); if(el)el.value=d; })();
+
+// ── CADASTRO
+function startDiag(){
+  const nome=document.getElementById('iNome').value.trim();
+  const email=document.getElementById('iEmail').value.trim();
+  const cidade=document.getElementById('iCidade').value.trim();
+  const data=document.getElementById('iData').value;
+  let ok=true;
+  function se(id,bad){const el=document.getElementById(id);if(bad){el.classList.add('err');ok=false;}else el.classList.remove('err');}
+  se('iNome',nome==='');se('iEmail',email===''||!email.includes('@'));
+  se('iCidade',cidade==='');se('iData',data==='');
+  if(!ok)return;
+  userData={nome,email,cidade,data:data?new Date(data+'T12:00:00').toLocaleDateString('pt-BR'):''};
+  document.getElementById('cadastroSection').style.display='none';
+  document.getElementById('mainHeader').style.display='';
+  document.getElementById('mainProgress').style.display='';
+  document.getElementById('quizSection').style.display='';
+  renderQ();window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── RENDER
+function renderQ(){
+  const q=ALL_Q[curQ];
+  document.getElementById('topicName').textContent=q.topicLabel;
+  document.getElementById('qNum').textContent=`PERGUNTA ${curQ+1} / ${TOTAL}`;
+  document.getElementById('qText').textContent=q.text;
+  const objEl=document.getElementById('qObj');
+  if(q.qIdx===0){objEl.innerHTML=`<strong>OBJETIVO DO PILAR:</strong> ${q.topicObj}`;objEl.style.display='';}
+  else objEl.style.display='none';
+  const ol=document.getElementById('optionsList');ol.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const val=i+1;
+    const sel=answers[q.id]===val?'selected':'';
+    const div=document.createElement('label');
+    div.className=`opt-label ${sel}`;
+    div.innerHTML=`<input class="opt-radio" type="radio" name="curAns" value="${val}"><span class="opt-num">${val}</span><span class="opt-text">${opt}</span>`;
+    div.addEventListener('click',()=>selectOpt(q.id,val));
+    ol.appendChild(div);
+  });
+  updateProgress();updateNavBtns();
+}
+
+function selectOpt(qId,val){
+  answers[qId]=val;
+  document.querySelectorAll('.opt-label').forEach(l=>l.classList.remove('selected'));
+  document.querySelectorAll('.opt-label')[val-1].classList.add('selected');
+  updateNavBtns();
+}
+
+function updateProgress(){
+  const pct=((curQ+1)/TOTAL)*100;
+  document.getElementById('pFill').style.width=pct+'%';
+  document.getElementById('pPct').textContent=Math.round(pct)+'%';
+  document.getElementById('pCount').textContent=`Pergunta ${curQ+1} de ${TOTAL}`;
+}
+
+function updateNavBtns(){
+  document.getElementById('prevBtn').style.visibility=curQ===0?'hidden':'visible';
+  const sel=answers[ALL_Q[curQ].id]!==undefined;
+  document.getElementById('nextBtn').disabled=!sel;
+  document.getElementById('nextBtn').textContent=curQ===TOTAL-1?'VER RESULTADO':'PRÓXIMA';
+}
+
+function prevQ(){if(curQ>0){curQ--;animTrans();}}
+function nextQ(){if(curQ<TOTAL-1){curQ++;animTrans();}else showResults();}
+function animTrans(){const c=document.getElementById('qCard');c.classList.add('fade-out');setTimeout(()=>{renderQ();c.classList.remove('fade-out');},270);}
+
+// ── RESULTS
+function calcResults(){
+  const tr={};let total=0;
+  TOPICS.forEach(t=>{
+    let score=0,cnt=0;
+    t.questions.forEach((_,i)=>{const v=answers[`${t.name}_${i}`];if(v!==undefined){score+=v;cnt++;}});
+    const pct=t.maxPts>0?(score/t.maxPts)*100:0;
+    tr[t.name]={score,maxPts:t.maxPts,percentage:pct,label:t.label,shortLabel:t.shortLabel};
+    total+=score;
+  });
+  return{individual:tr,total,percentage:(total/55)*100};
+}
+
+function getLevel(total){
+  if(total>=41)return{level:'AVANÇADO',msg:'Você demonstra domínio sólido das 5 áreas da execução estratégica. Suas habilidades técnicas, visão comercial e capacidade de recuperação de crédito estão em patamar superior. Agora é hora de escalar, fechar parcerias e ampliar resultados com método.'};
+  if(total>=28)return{level:'EM DESENVOLVIMENTO',msg:'Você tem base jurídica e já gera resultados, mas há gaps que estão represando honorários e limitando seu crescimento. Com o Método da Caçada, você destrava execuções que parecem perdidas e eleva seu faturamento de forma consistente.'};
+  return{level:'NÍVEL CRÍTICO',msg:'Você tem conhecimento jurídico, mas está atuando sem método. A grande maioria das suas execuções está represando honorários que são juridicamente seus — mas que nunca chegam ao seu bolso. Uma única execução destravada pode pagar o investimento na mentoria.'};
+}
+
+function getStatusClass(pct){if(pct>=80)return'excellent';if(pct>=60)return'good';if(pct>=40)return'warning';return'critical';}
+function getStatusText(pct){if(pct>=80)return'AVANCADO';if(pct>=60)return'DESENVOLVIDO';if(pct>=40)return'EM DESENVOLVIMENTO';return'CRITICO';}
+
+function getFeedback(name,pct){
+  const f={
+    escritorio:{excellent:'Sua carteira é robusta e suas execuções geram resultado consistente. Você tem volume, faturamento previsível e potencial de escala imediata. O próximo nível é ampliar parcerias estratégicas e sistematizar processos para multiplicar honorários.',good:'Você tem carteira e resultados, mas ainda há espaço para destravar execuções represadas. Com o Método da Caçada sistematizado, cada execução passa a ter diagnóstico preciso e estratégia de resolução — sem improviso.',warning:'Sua carteira tem potencial, mas muita coisa está travada. Você sabe que está deixando dinheiro na mesa. Sem método estruturado de busca patrimonial e peticionamento, seus honorários continuarão represados.',critical:'Você está no início — ou sua carteira está completamente estagnada. Cada mês sem método é um mês de honorários represados que você ganhou juridicamente mas nunca vai receber. A urgência é agora.'},
+    buscabens:{excellent:'Você tem sequência estratégica de busca e age preventivamente antes da citação. Esse domínio é o diferencial que separa quem recupera crédito de quem apenas protocola petições. Continue aprimorando com jurisprudências atualizadas do STJ.',good:'Você usa mais sistemas que a média, mas ainda há lacunas na sequência estratégica e nas ações preventivas. Muitas execuções nascem mortas por falta de arresto antes da citação — e você pode estar perdendo isso sistematicamente.',warning:'Você usa os sistemas básicos sem estratégia definida e raramente age antes da citação. A tagline que define esse perfil: só pede SISBAJUD... depois tem que pedir DEUSMEAJUD. O Método da Caçada tem 11 passos para mudar isso.',critical:'Você ainda depende apenas de SISBAJUD, RENAJUD e INFOJUD — e não age preventivamente. Suas execuções podem estar nascendo mortas antes mesmo de começar. O Método da Caçada transforma esse cenário com sequência estratégica completa.'},
+    recuperacao:{excellent:'Você tem arsenal técnico completo: identifica laranjas, usa medidas coercitivas atípicas com fundamento sólido e não deixa devedores escaparem por brechas técnicas. Esse domínio vira diferencial competitivo — clientes te buscam por isso.',good:'Você já usa IDPJ e algumas medidas coercitivas, mas ainda há insegurança na fundamentação. Com o módulo de Descoberta de Laranjas, você passa a ter argumentos que a maioria dos advogados simplesmente não tem.',warning:'Você sabe que existem ferramentas avançadas mas tem insegurança para usá-las com consistência. Devedores usam blindagens patrimoniais — e você ainda não tem o arsenal técnico completo para enfrentá-los.',critical:'Você está deixando devedores escaparem por brechas que ainda não conhece. Quando o cliente diz não tem bens, a maioria dos advogados desiste. Tubarões da Execução encontram o que está escondido.'},
+    gargalos:{excellent:'Você identificou seus gargalos e tem segurança técnica para conduzir casos complexos. Raramente perde negócios por insegurança. O foco agora é sistema, escala e parcerias estratégicas para ampliar volume.',good:'Você tem base técnica mas há gargalos específicos travando resultados. Cada caso recusado por insegurança é dinheiro que ficou na mesa para sempre. Suporte técnico especializado resolve isso de forma definitiva.',warning:'Você já perdeu casos por insegurança e sente que está sozinho contra um sistema complexo. Na mentoria, você tem tutores jurídicos para casos concretos, HOTSEATs ao vivo e acesso direto ao Prof. José Andrade.',critical:'Você recusa ou perde casos com frequência por insegurança técnica. Cada caso perdido se acumula mês a mês. A mentoria existe exatamente para você nunca mais dizer não por falta de técnica — e sim por escolha estratégica.'},
+    prospeccao:{excellent:'Você tem posicionamento claro, cobra o valor justo sem hesitação e tem sistema de captação ativo. Seu faturamento é previsível e você não depende de sorte para ter novos casos. O próximo nível é parcerias estratégicas e escala.',good:'Você tem noção do seu valor, mas ainda cede na negociação e sua captação não é sistematizada. Dominar o método técnico aumenta sua autoridade — e autoridade técnica é o melhor argumento de precificação.',warning:'Você cobra abaixo do potencial, improvisa na venda do seu serviço e não tem sistema de captação replicável. Faturamento imprevisível é a consequência direta. O pilar de Prospecção da mentoria resolve isso.',critical:'Você tem vergonha de cobrar, não tem sistema de captação e seu faturamento é imprevisível. Está trabalhando muito e monetizando pouco. A estratégia individualizada de captação e as parcerias com o Prof. José Andrade mudam esse cenário.'}
+  };
+  const t=f[name];if(!t)return'';
+  if(pct>=80)return t.excellent;if(pct>=60)return t.good;if(pct>=40)return t.warning;return t.critical;
+}
+
+function getQuote(name){
+  const q={
+    escritorio:'"Na execução, só não recebe quem desiste."',
+    buscabens:'"O sucesso da sua execução não depende do juiz, mas do conhecimento que você tem."',
+    recuperacao:'"Se o juiz não te ajuda, o ex-juiz aqui vai te ajudar."',
+    gargalos:'"Advocacia sem gestão vira improviso — e improviso não sustenta crescimento."',
+    prospeccao:'"Quem entrega resultado não precisa correr atrás de cliente."'
+  };return q[name]||null;
+}
+
+function showResults(){
+  const res=calcResults();lastResults=res;
+  const lv=getLevel(res.total);
+  document.getElementById('scoreNum').textContent=res.total;
+  document.getElementById('scoreLevel').textContent=lv.level+' — '+Math.round(res.percentage)+'%';
+  document.getElementById('scoreMsg').textContent=lv.msg;
+  if(userData.nome)document.getElementById('resultsTitle').innerHTML='DIAGNÓSTICO DE <em>'+userData.nome.toUpperCase()+'</em>';
+  const crits=TOPICS.filter(t=>res.individual[t.name].percentage<60).sort((a,b)=>res.individual[a.name].percentage-res.individual[b.name].percentage);
+  if(crits.length>0){
+    const names=crits.map(t=>`<strong>${t.label}</strong> (${res.individual[t.name].percentage.toFixed(0)}%)`).join(', ');
+    document.getElementById('probText').innerHTML=`Os pilares ${names} estão abaixo de 60% e precisam de atenção prioritária. Resolver esses gaps vai destravar honorários e ampliar seus resultados de forma imediata.`;
+    document.getElementById('probArea').style.display='';
+  }
+  buildRadar(res);buildDetail(res);
+  document.getElementById('quizSection').style.display='none';
+  document.getElementById('mainProgress').style.display='none';
+  document.getElementById('results').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function buildRadar(res){
+  const ctx=document.getElementById('radarChart').getContext('2d');
+  if(radarChart)radarChart.destroy();
+  const labels=TOPICS.map(t=>t.shortLabel);
+  const scores=TOPICS.map(t=>{const r=res.individual[t.name];return(r.score/r.maxPts)*5;});
+  const mob=window.innerWidth<=768;
+  radarChart=new Chart(ctx,{
+    type:'radar',
+    data:{labels,datasets:[
+      {label:'Seu Resultado',data:scores,borderColor:'#009BFF',backgroundColor:'rgba(0,155,255,0.12)',borderWidth:2.5,pointBackgroundColor:'#009BFF',pointBorderColor:'#061728',pointBorderWidth:2,pointRadius:6},
+      {label:'Referência (4 pts)',data:new Array(5).fill(4),borderColor:'rgba(255,255,255,0.15)',backgroundColor:'rgba(255,255,255,0.02)',borderWidth:1.5,borderDash:[5,5],pointBackgroundColor:'rgba(255,255,255,0.15)',pointBorderColor:'#061728',pointRadius:3}
+    ]},
+    options:{responsive:true,maintainAspectRatio:true,
+      plugins:{legend:{position:'bottom',labels:{color:'rgba(244,246,248,0.6)',font:{size:mob?10:11,family:'Barlow Condensed',weight:'600'},padding:18,usePointStyle:true}}},
+      scales:{r:{beginAtZero:true,max:5,ticks:{stepSize:1,color:'rgba(255,255,255,0.15)',backdropColor:'transparent',font:{size:9}},grid:{color:'rgba(0,155,255,0.08)'},angleLines:{color:'rgba(0,155,255,0.08)'},pointLabels:{color:'#F4F6F8',font:{size:mob?10:12,family:'Barlow Condensed',weight:'700'},padding:14}}}
+    }
+  });
+}
+
+function buildDetail(res){
+  const grid=document.getElementById('detailGrid');grid.innerHTML='';
+  const sorted=[...TOPICS].sort((a,b)=>res.individual[a.name].percentage-res.individual[b.name].percentage);
+  sorted.forEach(t=>{
+    const r=res.individual[t.name],sc=getStatusClass(r.percentage),st=getStatusText(r.percentage);
+    const fb=getFeedback(t.name,r.percentage),qt=getQuote(t.name);
+    const div=document.createElement('div');
+    div.className=`card detail-item ${sc}`;
+    div.innerHTML=`<div class="di-head"><div class="di-title">${t.label}</div><div class="di-score">${r.score}<small>/${r.maxPts}</small></div></div><div class="di-bar"><div class="di-fill ${sc}" style="width:0%"></div></div><div class="di-status ${sc}">${st} — ${r.percentage.toFixed(0)}%</div><div class="di-fb">${fb}${qt?`<div class="di-quote">${qt}</div>`:''}</div>`;
+    grid.appendChild(div);
+    setTimeout(()=>div.querySelector('.di-fill').style.width=r.percentage+'%',120);
+  });
+}
+
+function restart(){
+  curQ=0;answers={};lastResults=null;
+  userData={nome:'',email:'',cidade:'',data:''};
+  document.getElementById('results').style.display='none';
+  document.getElementById('quizSection').style.display='none';
+  document.getElementById('mainHeader').style.display='none';
+  document.getElementById('mainProgress').style.display='none';
+  document.getElementById('probArea').style.display='none';
+  document.getElementById('cadastroSection').style.display='';
+  ['iNome','iEmail','iCidade'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('iData').value=new Date().toISOString().split('T')[0];
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ═══════════ PDF ═══════════
+async function gerarPDF(){
+  const btn=document.getElementById('pdfBtn');
+  btn.disabled=true;btn.textContent='GERANDO PDF...';
+  try{
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const W=210,H=297,ML=18,MR=18,CW=W-ML-MR;
+    const BG=[6,23,40],BG2=[10,37,64],BLUE=[0,155,255],WHITE=[244,246,248];
+    const MUTED=[138,155,176],GREEN=[39,174,96],ORANGE=[243,156,18],RED=[231,76,60];
+    let page=1;
+
+    function sf(r,g,b){doc.setFillColor(r,g,b)}
+    function sd(r,g,b){doc.setDrawColor(r,g,b)}
+    function st(r,g,b){doc.setTextColor(r,g,b)}
+    function sfont(style,size){doc.setFont('helvetica',style);doc.setFontSize(size)}
+
+    function scCol(pct){
+      if(pct>=80)return{fill:GREEN,label:'AVANCADO'};
+      if(pct>=60)return{fill:BLUE,label:'DESENVOLVIDO'};
+      if(pct>=40)return{fill:ORANGE,label:'EM DESENVOLVIMENTO'};
+      return{fill:RED,label:'CRITICO'};
+    }
+
+    function drawBG(){
+      sf(...BG);doc.rect(0,0,W,H,'F');
+      // grid lines
+      sd(...BLUE);doc.setLineWidth(0.08);doc.setGState(doc.GState({opacity:0.04}));
+      for(let x=0;x<=W;x+=28){doc.line(x,0,x,H);}
+      for(let y=0;y<=H;y+=28){doc.line(0,y,W,y);}
+      doc.setGState(doc.GState({opacity:1}));
+      // corner marks
+      sf(...BLUE);doc.setGState(doc.GState({opacity:0.3}));
+      doc.rect(0,0,5,1,'F');doc.rect(0,0,1,5,'F');
+      doc.rect(W-5,0,5,1,'F');doc.rect(W-1,0,1,5,'F');
+      doc.rect(0,H-1,5,1,'F');doc.rect(0,H-5,1,5,'F');
+      doc.rect(W-5,H-1,5,1,'F');doc.rect(W-1,H-5,1,5,'F');
+      doc.setGState(doc.GState({opacity:1}));
+      // top accent bar
+      sf(...BLUE);doc.rect(0,0,W,1.5,'F');
+    }
+    function drawFooter(){
+      sf(...BLUE);doc.setGState(doc.GState({opacity:0.25}));
+      doc.rect(ML,H-12,CW,0.5,'F');doc.setGState(doc.GState({opacity:1}));
+      sfont('bold',6.5);st(...BLUE);doc.text('TUBAROES DA EXECUCAO',ML,H-7);
+      sfont('normal',6.5);st(...MUTED);
+      doc.text('Prof. Jose Andrade | Mentoria de Execucao Estrategica',ML+42,H-7);
+      doc.text('PAG. '+page,W-MR,H-7,{align:'right'});
+    }
+    function drawCard(x,y,w,h){
+      sf(...BG2);doc.roundedRect(x,y,w,h,2,2,'F');
+      sf(...BLUE);doc.setGState(doc.GState({opacity:0.8}));
+      doc.rect(x,y,w,1,'F');doc.setGState(doc.GState({opacity:1}));
+      sd(...BLUE);doc.setLineWidth(0.12);doc.setGState(doc.GState({opacity:0.15}));
+      doc.roundedRect(x,y,w,h,2,2,'S');doc.setGState(doc.GState({opacity:1}));
+    }
+    function drawPBar(x,y,w,h,pct,clr){
+      sf(...BG2);doc.roundedRect(x,y,w,h,1,1,'F');
+      if(pct>0){sf(...clr);doc.roundedRect(x,y,(pct/100)*w,h,1,1,'F');}
+    }
+    function addPage(){doc.addPage();page++;drawBG();drawFooter();return 18;}
+
+    let y=18;drawBG();drawFooter();
+
+    // PAGE 1 - HEADER
+    sfont('bold',8);st(...BLUE);doc.text('PROF. JOSE ANDRADE | DIAGNOSTICO ESTRATEGICO',ML,y);
+    y+=8;
+    sfont('bold',30);st(...WHITE);doc.text('TUBAROES DA',ML,y);y+=9;
+    sfont('bold',30);st(...BLUE);doc.text('EXECUCAO',ML,y);y+=10;
+    sfont('normal',9);st(...MUTED);doc.text('Descubra seu nivel de dominio nas 5 areas essenciais da Execucao Estrategica',ML,y);
+    y+=6;sf(...BLUE);doc.rect(ML,y,30,0.8,'F');y+=10;
+
+    // USER CARD
+    const ucH=28;drawCard(ML,y,CW,ucH);
+    const ux=ML+8,ux2=ML+CW/2+4;let uy=y+6;
+    sfont('bold',7);st(...BLUE);doc.text('ADVOGADO',ux,uy);sfont('normal',9);st(...WHITE);doc.text(userData.nome||'—',ux,uy+5);
+    sfont('bold',7);st(...BLUE);doc.text('EMAIL',ux2,uy);sfont('normal',9);st(...WHITE);doc.text(userData.email||'—',ux2,uy+5);
+    sfont('bold',7);st(...BLUE);doc.text('CIDADE',ux,uy+13);sfont('normal',9);st(...WHITE);doc.text(userData.cidade||'—',ux,uy+19);
+    sfont('bold',7);st(...BLUE);doc.text('DATA',ux2,uy+13);sfont('normal',9);st(...WHITE);doc.text(userData.data||'—',ux2,uy+19);
+    y+=ucH+9;
+
+    // SCORE CARD
+    const scH=68;drawCard(ML,y,CW,scH);
+    const sq=42,sx=ML+8,sy=y+4;
+    sf(0,40,80);doc.roundedRect(sx,sy,sq,sq,3,3,'F');
+    sd(...BLUE);doc.setLineWidth(0.8);doc.roundedRect(sx,sy,sq,sq,3,3,'S');doc.setLineWidth(0.12);
+    const res=lastResults,lv=getLevel(res.total);
+    sfont('bold',26);st(...WHITE);doc.text(res.total+'',sx+sq/2,sy+sq/2+4,{align:'center'});
+    sfont('normal',8);st(...MUTED);doc.text('/ 55 pts',sx+sq/2,sy+sq/2+11,{align:'center'});
+    const infoX=sx+sq+10,infoW=CW-sq-26;
+    sfont('bold',13);st(...BLUE);doc.text(lv.level+' — '+Math.round(res.percentage)+'%',infoX,sy+10);
+    sfont('normal',8.5);st(200,215,230);
+    const msgL=doc.splitTextToSize(lv.msg,infoW);doc.text(msgL.slice(0,4),infoX,sy+17,{lineHeightFactor:1.5});
+    const bny=sy+sq+4;sf(0,30,60);doc.roundedRect(ML+5,bny,CW-10,7,1,1,'F');
+    sfont('bold',7.5);st(...BLUE);doc.text('REFERENCIA:',ML+9,bny+4.8);
+    sfont('normal',7.5);st(...MUTED);doc.text('Acima de 41 pts: dominio consistente. Abaixo de 60% por pilar: atencao imediata.',ML+32,bny+4.8);
+    y+=scH+10;
+
+    // MINI BARS
+    sfont('bold',11);st(...WHITE);doc.text('VISAO GERAL DOS 5 PILARES',ML,y);
+    sf(...BLUE);doc.rect(ML,y+2,25,0.5,'F');y+=9;
+    const sorted=[...TOPICS].sort((a,b)=>res.individual[a.name].percentage-res.individual[b.name].percentage);
+    const colA=ML,colB=ML+CW/2+4,cW=CW/2-6;
+    sorted.forEach((t,i)=>{
+      const r=res.individual[t.name],sc=scCol(r.percentage);
+      const cx=i<3?colA:colB,cy=y+(i<3?i:i-3)*19;
+      sfont('bold',7.5);st(...BLUE);doc.text(t.label,cx,cy+4);
+      sfont('normal',7.5);st(...WHITE);doc.text(`${r.score}/${r.maxPts}`,cx+cW,cy+4,{align:'right'});
+      drawPBar(cx,cy+6,cW,3.5,r.percentage,sc.fill);
+      sfont('bold',6.5);st(...sc.fill);doc.text(`${r.percentage.toFixed(0)}%`,cx,cy+14);
+    });
+    y+=3*19+6;
+
+    // PAGE 2 - RADAR
+    y=addPage();y=18;
+    sfont('bold',20);st(...WHITE);doc.text('VISAO GERAL DOS 5 PILARES',ML,y);
+    sf(...BLUE);doc.rect(ML,y+3,36,0.8,'F');y+=13;
+    try{const rc=document.getElementById('radarChart');if(rc){const img=rc.toDataURL('image/png');const cs=CW*0.8;doc.addImage(img,'PNG',ML+(CW-cs)/2,y,cs,cs);y+=cs+6;}}catch(e){console.warn(e);}
+
+    // PAGE 3 - DETAIL
+    y=addPage();y=18;
+    sfont('bold',20);st(...WHITE);doc.text('RESULTADO DETALHADO POR PILAR',ML,y);
+    sf(...BLUE);doc.rect(ML,y+3,46,0.8,'F');y+=13;
+
+    for(let i=0;i<sorted.length;i++){
+      const t=sorted[i],r=res.individual[t.name],sc=scCol(r.percentage);
+      const fb=getFeedback(t.name,r.percentage),qt=getQuote(t.name);
+      sfont('normal',8.5);const fbL=doc.splitTextToSize(fb,CW-26);
+      let qtL=[];if(qt){sfont('italic',8);qtL=doc.splitTextToSize(qt,CW-26);}
+      const cH=10+8+fbL.length*4.8+(qtL.length>0?qtL.length*4.5+6:0)+14;
+      if(y+cH>H-20){y=addPage();y=18;}
+      drawCard(ML,y,CW,cH);
+      sfont('bold',10.5);st(...BLUE);doc.text(t.label,ML+8,y+9);
+      sf(...BG2);doc.roundedRect(ML+CW-36,y+3,32,8,1,1,'F');
+      sfont('bold',8.5);st(...WHITE);doc.text(`${r.score} / ${r.maxPts}`,ML+CW-20,y+8.5,{align:'center'});
+      drawPBar(ML+8,y+13,CW-16,3,r.percentage,sc.fill);
+      const ply=y+19;sf(...sc.fill);doc.setGState(doc.GState({opacity:0.15}));
+      doc.roundedRect(ML+8,ply,35,5,1,1,'F');doc.setGState(doc.GState({opacity:1}));
+      sfont('bold',7);st(...sc.fill);doc.text(`${sc.label} ${r.percentage.toFixed(0)}%`,ML+25.5,ply+3.5,{align:'center'});
+      const ty=ply+9;sfont('normal',8.5);st(200,215,230);
+      doc.text(fbL,ML+8,ty,{lineHeightFactor:1.55});
+      if(qt){const qy=ty+fbL.length*4.8+3;sf(0,30,55);doc.roundedRect(ML+8,qy-1,CW-16,qtL.length*4.5+4,1,1,'F');sf(...BLUE);doc.rect(ML+8,qy-1,1.5,qtL.length*4.5+4,'F');sfont('italic',8);st(...BLUE);doc.text(qtL,ML+12,qy+2.5,{lineHeightFactor:1.5});}
+      y+=cH+7;
+    }
+
+    const ds=new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
+    doc.save(`Diagnostico-Tubaroes-Execucao-${ds}.pdf`);
+  }catch(e){console.error(e);alert('Erro ao gerar PDF. Tente novamente.');}
+  btn.disabled=false;
+  btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg> BAIXAR RELATÓRIO PDF';
+}
+
+// KEYBOARD
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('results').style.display==='block')return;
+  if(document.getElementById('quizSection').style.display==='none')return;
+  if(e.key>='1'&&e.key<='5'){const q=ALL_Q[curQ];selectOpt(q.id,parseInt(e.key));}
+  else if(e.key==='Enter'&&!document.getElementById('nextBtn').disabled)nextQ();
+  else if(e.key==='ArrowRight'&&!document.getElementById('nextBtn').disabled)nextQ();
+  else if(e.key==='ArrowLeft'&&curQ>0)prevQ();
+});
+</script>
+</body>
+</html>
