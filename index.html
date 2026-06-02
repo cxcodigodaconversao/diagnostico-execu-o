@@ -726,11 +726,11 @@ async function gerarPDF(){
 
     // PAGE 1 - HEADER
     sfont('bold',8);st(...BLUE);doc.text('PROF. JOSÉ ANDRADE | DIAGNÓSTICO ESTRATÉGICO',ML,y);
-    y+=8;
-    sfont('bold',30);st(...WHITE);doc.text('TUBARÕES DA',ML,y);y+=9;
-    sfont('bold',30);st(...BLUE);doc.text('EXECUÇÃO',ML,y);y+=10;
+    y+=12;
+    sfont('bold',30);st(...WHITE);doc.text('TUBARÕES DA',ML,y);y+=14;
+    sfont('bold',30);st(...BLUE);doc.text('EXECUÇÃO',ML,y);y+=14;
     sfont('normal',9);st(...MUTED);doc.text('Descubra seu nível de domínio nas 5 áreas essenciais da Execução Estratégica',ML,y);
-    y+=6;sf(...BLUE);doc.rect(ML,y,30,0.8,'F');y+=10;
+    y+=8;sf(...BLUE);doc.rect(ML,y,30,0.8,'F');y+=10;
 
     // USER CARD
     const ucH=28;drawCard(ML,y,CW,ucH);
